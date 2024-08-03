@@ -1,0 +1,188 @@
+/* html, body样式 */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: 'HarmonyOS_Sans_SC_Medium';
+}
+/* 按钮字体样式  */
+button {
+    font-family: "HarmonyOS_Sans_SC_Medium";
+}
+/* 提示框 */
+.ui-tip{
+    top: 120%;
+    width: 140px;
+    height: 24px;
+    padding: .3rem;
+    margin: 0 auto;
+    position: absolute;
+    text-align: center;
+    border-radius: 28px;
+    border: 1px solid #FFFFFF;
+    line-height: 24px;
+}
+/* 小箭头 */
+.ui-tip-arrow::before, .ui-tip-arrow::after{
+    content: "";
+    display: block;
+    position: absolute;
+    width: 0;
+    height: 0px;
+    border-width: .25rem;
+    border-style: solid;
+}
+/* 向上箭头 */
+.ui-tip-arrow .ui-tip-arrow-up::after{ 
+    border-left-color: transparent;
+    border-top-color: transparent;
+    bottom: 100%;
+    right: 50%;
+}
+.ui-tip-arrow .ui-tip-arrow-up::before{
+    border-right-color: transparent;
+    border-top-color: transparent;
+    bottom: 100%;
+    left: 50%;
+}
+/* 向下箭头 */
+.ui-tip-arrow .ui-tip-arrow-down::after{ 
+    border-left-color: transparent;
+    border-bottom-color: transparent;
+    right: 50%;
+    top: 100%;
+}
+.ui-tip-arrow .ui-tip-arrow-down::before{
+    border-right-color: transparent;
+    border-bottom-color:transparent;
+    left: 50%;
+    top: 100%;
+}
+/* 主题颜色 */
+.ui-theme-black{
+    background-color:rgba(24, 25, 28, .8);
+    color: #FFFFFF;
+}
+.ui-theme-black::after, .ui-theme-black::before {
+    border-color: rgba(24, 25, 28, .8);
+}
+/* 弹幕样式 */
+.hl_dm {
+    -webkit-touch-callout: none;
+    color: #fff;
+    color: var(--color,#fff);
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    font-size: 25px;
+    font-size: var(--fontSize,25px);
+    font-weight: 700;
+    font-weight: var(--fontWeight,bold);
+    line-height: 1.125;
+    -webkit-perspective: 500px;
+    perspective: 500px;
+    position: absolute;
+    text-shadow: 1px 0 1px #000000,0 1px 1px #000000,0 -1px 1px #000000,-1px 0 1px #000000;
+    top: var(--top);
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    white-space: pre;
+    will-change: transform, opacity;
+    box-sizing: initial;
+    /* cursor: pointer; */
+}
+/* 鼠标移动弹幕上样式  */
+.paused {
+    -webkit-animation-play-state: paused !important;
+    animation-play-state: paused !important;
+}
+/* 弹幕暂停样式 */
+.state-paused .hl_dm {
+    -webkit-animation-play-state: paused !important;
+    animation-play-state: paused !important;
+}
+/* 弹幕显示样式 */
+.danmaku-show .hl_dm {
+    opacity: 1;
+    opacity: var(--opacity,1);
+}
+/* 滚动模式样式 */
+.scroll-mode {
+    left: var(--offset);
+    -webkit-animation: roll linear var(--duration) forwards;
+    animation: roll linear var(--duration) forwards;
+}
+/* 固定模式样式 */
+.fixed-mode {
+    left: 50%;
+    will-change: opacity;
+    -webkit-animation: stop linear var(--duration) forwards;
+    animation: stop linear var(--duration) forwards;
+}
+/* 弹幕操作样式 */
+.hl_dm_tip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.hl_dm_like {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    background: url(@/assets/img/like.svg) no-repeat;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    margin: 0 8px;
+}
+.hl_dm_copy {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    background: url(@/assets/img/copy.svg) no-repeat;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    margin: 0 8px;
+}
+.hl_dm_withdraw {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    background: url(@/assets/img/withdraw.svg) no-repeat;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    margin: 0 8px;
+}
+.hl-icon {
+    width: 100%;
+    height: 100%;
+}
+/* 弹幕滚动动画 */
+@keyframes roll {
+    0% {
+        -webkit-transform: translateX(0) translateZ(0);
+        transform: translateX(0) translateZ(0);
+    }
+    100% {
+        -webkit-transform: translateX(var(--translateX)) translateZ(0);
+        transform: translateX(var(--translateX)) translateZ(0);
+    }
+}
+/* 弹幕固定动画 */
+@keyframes stop {
+    0% {
+        -webkit-transform: translateX(-50%);
+        transform: translateX(-50%);
+    }
+    100% {
+        -webkit-transform: translateX(-50%);
+        transform: translateX(-50%);
+    }
+}

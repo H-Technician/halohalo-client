@@ -1,0 +1,11 @@
+@font-face {
+  font-family: 'HarmonyOS_Sans_SC_Medium';
+  font-weight: normal;
+  src: url('@/assets/fonts/HarmonyOS_Sans_SC_Medium.ttf') format('truetype');
+}
+  
+  /* .iconfont {
+    font-family: 'modeng' !important;
+    font-size: 16px;
+    font-style: normal;
+  } */
