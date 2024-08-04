@@ -47,7 +47,7 @@
                     <template #reference>
                         <!-- 未读信息数量 -->
                         <div class="red-num-message">12</div>
-                        <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="isOPenHeaderBarRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                        <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
                                 <IconsHeaderbarDaHuiyuan />
                             <span>大会员</span>
                         </NuxtLink>
@@ -63,7 +63,7 @@
             <div class="right-entry-item-message" v-if="isLogin">
                 <!-- 未读信息数量 -->
                 <div class="red-num-message">12</div>
-                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="isOPenHeaderBarRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
                         <IconsHeaderbarXioaXi />
                     <span>消息</span>
                 </NuxtLink>
@@ -71,7 +71,7 @@
             <div class="right-entry-item-message" v-else>
                 <Popover popStyle="padding-top: 16px;">
                     <template #reference>
-                        <div class="right-entry--outside" :class="isOPenHeaderBarRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                        <div class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
                                 <IconsHeaderbarXioaXi />
                             <span>消息</span>
                         </div>
@@ -89,7 +89,7 @@
             <div class="right-entry-item-dynamic" v-if="isLogin">
                 <!-- 未读信息数量 -->
                 <div class="red-num-message">12</div>
-                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="isOPenHeaderBarRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
                         <IconsHeaderbarDongTai />
                     <span>动态</span>
                 </NuxtLink>
@@ -97,7 +97,7 @@
             <div class="right-entry-item-dynamic" v-else>
                 <Popover popStyle="padding-top: 16px;">
                     <template #reference>
-                        <div class="right-entry--outside" :class="isOPenHeaderBarRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                        <div class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
                                 <IconsHeaderbarDongTai />
                             <span>动态</span>
                         </div>
@@ -113,7 +113,7 @@
         <!-- 收藏 -->
         <div class="right-entry-item">
             <div class="right-entry-item-collection" v-if="isLogin">
-                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="isOPenHeaderBarRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
                         <IconsHeaderbarShiouCang />
                     <span>收藏</span>
                 </NuxtLink>
@@ -121,7 +121,7 @@
             <div class="right-entry-item-collection" v-else>
                 <Popover popStyle="padding-top: 16px;">
                     <template #reference>
-                        <div class="right-entry--outside" :class="isOPenHeaderBarRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                        <div class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
                                 <IconsHeaderbarShiouCang />
                             <span>收藏</span>
                         </div>
@@ -137,7 +137,7 @@
         <!-- 历史 -->
         <div class="right-entry-item">
             <div class="right-entry-item-history" v-if="isLogin">
-                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="isOPenHeaderBarRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
                         <IconsHeaderbarLiSHi />
                     <span>历史</span>
                 </NuxtLink>
@@ -145,7 +145,7 @@
             <div class="right-entry-item-history" v-else>
                 <Popover popStyle="padding-top: 16px;">
                     <template #reference>
-                        <div class="right-entry--outside" :class="isOPenHeaderBarRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                        <div class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
                                 <IconsHeaderbarLiSHi />
                             <span>历史</span>
                         </div>
@@ -161,13 +161,13 @@
         <!-- 创作中心 -->
         <div class="right-entry-item">
             <div class="right-entry-item-creation" v-if="isLogin">
-                <NuxtLink to="/platform/upload/video/frame?spm_id_from=333.1007.0.0" target="_blank" class="right-entry--outside" :class="isOPenHeaderBarRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <NuxtLink to="/platform/upload/video/frame?spm_id_from=333.1007.0.0" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
                         <IconsHeaderbarChiuangZuo />
                     <span>创作中心</span>
                 </NuxtLink>
             </div>
             <div class="right-entry-item-creation" v-else>
-                <div target="_blank" class="right-entry--outside" :class="isOPenHeaderBarRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <div target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
                         <IconsHeaderbarChiuangZuo />
                     <span>创作中心</span>
                 </div>
@@ -202,7 +202,6 @@ import { getUserInfoApi } from '@/api/user';
 const dialogVisible = ref(false);
 const showAvatarPopover = ref(false);
 const isLogin = useIsLogin();
-const isOPenHeaderBarRight = ref(false);
 const screenWidth = ref<number>(0); //屏幕宽度
 const uploadoffsetStyle = ref<string>("");
 const userInfo = ref<UserInfo>();
@@ -233,7 +232,7 @@ const gotoUpload = () =>{
     dialogVisible.value = true;
 }
 const props = defineProps({
-    OPenHeaderRight: {
+    isFixedHeaderRight: {
         type: Boolean
     }
 })
@@ -274,14 +273,7 @@ const getUserInfo = async () => {
         throw new Error('获取用户信息失败');
     }
     
-}
-watchEffect(() => {
-  if (props.OPenHeaderRight) {
-    isOPenHeaderBarRight.value = true
-  } else {
-    isOPenHeaderBarRight.value = false
-  }
-});  
+}  
 watchEffect(() => {
   if (screenWidth.value < 1279.9) {
     uploadoffsetStyle.value = "padding-top: 18px; margin-left: -150px";

@@ -131,20 +131,7 @@ const searchInput = ref("");
 const isComposite = ref(false);
 const matchingWord: any[] = [];
 const isHistoryOpen = ref(true);
-const isOPenHeaderBarCenter = ref(false);
 const centerSearchContainer = ref<HTMLElement | null>(null);
-const props = defineProps({
-    OPenHeaderCenter: {
-        type: Boolean
-    }
-})
-watchEffect(() => {
-  if (props.OPenHeaderCenter) {
-    isOPenHeaderBarCenter.value = true
-  } else {
-    isOPenHeaderBarCenter.value = false
-  }
-});
 
 // 浏览器宽度
 const screenWidth = ref<number>(0);

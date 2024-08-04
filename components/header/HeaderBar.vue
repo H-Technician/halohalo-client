@@ -1,14 +1,14 @@
 <template>
     <div class="header-bar" :class="HeaderClasses" :style="props.isShadow ? 'box-shadow: 0 0 30px rgba(0,0,0,.1);' : ''">
-        <HeaderBarLeft :OPenHeaderLeft="props.OPenHeader" :isShowCenter="props.isShowCenter"/>
-        <HeaderBarCenter :OPenHeadercenter="props.OPenHeader" :style="props.isShowCenter ? '' : ' display: none;'" />
-        <HeaderBarRight :OPenHeaderRight="props.OPenHeader" />
+        <HeaderBarLeft :isFixedHeaderLeft="props.isFixedHeader" :isShowCenter="props.isShowCenter"/>
+        <HeaderBarCenter :style="props.isShowCenter ? '' : ' display: none;'" />
+        <HeaderBarRight :isFixedHeaderRight="props.isFixedHeader" />
     </div>
 </template>
 
 <script lang="ts" setup>
 const props = defineProps({
-    OPenHeader: {
+    isFixedHeader: {
         type: Boolean
     },
     isShadow: {
@@ -26,7 +26,7 @@ const props = defineProps({
 })
 const HeaderClasses = computed(() => {
   return [
-    props.OPenHeader ? 'header-bar-slide-down' : '',
+    props.isFixedHeader ? 'header-bar-slide-down' : '',
     props.isDisplayHeader ? '' : 'hide-header-bar'
   ].filter(Boolean);
 });

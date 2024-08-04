@@ -1,7 +1,7 @@
 <template>
     <div class="search-layout">
         <HeaderBar 
-        :OPenHeader="true" 
+        :isFixedHeader="true" 
         :isShadow="true" 
         :isShowCenter="false" 
         :isDisplayHeader="props.isDisplayHeader"/>

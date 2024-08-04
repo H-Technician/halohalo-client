@@ -1,14 +1,14 @@
 <template>
     <div class="header-bar-left">
-        <a href="/" target="_self" class="entry-logo" :style="props.OPenHeaderLeft ? '' : 'display: none'">
+        <a href="/" target="_self" class="entry-logo" :style="props.isFixedHeaderLeft ? '' : 'display: none'">
             <picture class="logo">
-                <img src="~assets/img/headerlogo.png" alt="">
+                <img src="@/assets/img/headerlogo.png" alt="">
             </picture>
         </a>
         <Popover @isShowPopover="isOpenxiajiantou" popStyle="padding-top: 4px; margin-left: 260%;" 
-        :style="props.OPenHeaderLeft ? '' : 'display: none'">
+        :style="props.isFixedHeaderLeft ? '' : 'display: none'">
             <template #reference>
-                <a href="/" target="_self" class="title-entry" :style="props.OPenHeaderLeft ? '' : 'display: none'">
+                <a href="/" target="_self" class="title-entry" :style="props.isFixedHeaderLeft ? '' : 'display: none'">
                     <span>首页</span>
                     <el-icon class="icon-xiajiantou" :size="10" 
                     :style="[{transform:isOpentitleMenu ? 'rotate(180deg)' : ''}]" 
@@ -21,43 +21,43 @@
                 <HeadercardTitleCard />
             </template>
         </Popover>
-        <a href="/" target="_self" class="home-title-entry" :style="props.OPenHeaderLeft ? 'display: none' : ''">
+        <a href="/" target="_self" class="home-title-entry" :style="props.isFixedHeaderLeft ? 'display: none' : ''">
             <IconsHeaderbarTitleLogo class="home-title-icon"/>
             <span>首页</span>
         </a>
         <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.OPenHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
             <span>番剧</span>
         </NuxtLink>
         <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.OPenHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
             <span>漫画</span>
         </NuxtLink>
         <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.OPenHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
             <span>直播</span>
         </NuxtLink>
         <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.OPenHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
             <span>游戏中心</span>
         </NuxtLink>
         <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.OPenHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
             <span>会员购</span>
         </NuxtLink>
         <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.OPenHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
             <span>漫画</span>
         </NuxtLink>
         <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.OPenHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
             <span>赛事</span>
         </NuxtLink>
         <NuxtLink to="/" target="_blank" class="default-entry-right">
             <HeaderScroll :iscolor="isScroll"/>
         </NuxtLink>
         <NuxtLink to="/" target="_blank" class="download-entry" 
-        :class="[props.OPenHeaderLeft ? 'download-entry-slide-down-color' : 'download-entry-color', props.isShowCenter ? 'download-entry-show' : '']">
+        :class="[props.isFixedHeaderLeft ? 'download-entry-slide-down-color' : 'download-entry-color', props.isShowCenter ? 'download-entry-show' : '']">
             <IconsHeaderbarDownLoad class='download-icon'/>
             <span>下载客户端</span>
         </NuxtLink>
@@ -67,7 +67,7 @@
 <script lang="ts" setup>
 const isScroll = ref(false)
 const props = defineProps({
-    OPenHeaderLeft: {
+    isFixedHeaderLeft: {
         type: Boolean
     },
     isShowCenter: {
@@ -86,7 +86,7 @@ const isOpenxiajiantou = (isOpenxiajiantou: boolean) => {
     }
 }
 watchEffect(() => {
-  isScroll.value = props.OPenHeaderLeft;
+  isScroll.value = props.isFixedHeaderLeft;
 });
 </script>
 <style scoped>

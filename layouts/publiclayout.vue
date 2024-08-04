@@ -1,7 +1,7 @@
 <template>
   <div class="layout">
       <HeaderBar 
-      :OPenHeader="true" 
+      :isFixedHeader="true" 
       :isShadow="true"
       :isDisplayHeader="props.isDisplayHeader" />
     <slot />

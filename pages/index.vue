@@ -3,7 +3,7 @@
     <div class="index" ref="bodyScrollTop">
       <div class="large-layout">
         <!-- 头部 -->
-        <HeaderBar :OPenHeader="isOPenHeaderBar"/>
+        <HeaderBar :isFixedHeader="isFixedHeader"/>
         <IndexChannelFixed :style="isOPenChannelFixed ? '' : 'display: none;' "/>
         <HomebannerIndexHeaderBannerSpring />
         <IndexChannel />
@@ -30,7 +30,7 @@ const oldScrollTop = ref<number>(0); // 记录上一次滚动结束后的滚动�
 const scrollTop = ref<number>(0); // 记录当前的滚动距离
 const bodyScrollTop = ref<any>(null); 
 const bodyScrollTopH = ref<number>(0);
-const isOPenHeaderBar = ref(false); 
+const isFixedHeader = ref(false); 
 const refreshTime = ref(0);
 const isOPenChannelFixed = ref(false);
 const list = ref<number>(11);
@@ -61,14 +61,14 @@ watch(() => scrollTop.value,
                 oldScrollTop.value = newValue; // 每次滚动结束
                 // console.log(oldScrollTop);
                 if (oldScrollTop.value > 80 ) {
-                  isOPenHeaderBar.value=true;
+                  isFixedHeader.value=true;
                   if(oldScrollTop.value > 200) {
                     isOPenChannelFixed.value=true;
                   }else {
                     isOPenChannelFixed.value=false;
                   }
                 }else {
-                  isOPenHeaderBar.value=false;
+                  isFixedHeader.value=false;
                 }
             }
         //  }, 20); // 需要使用延时器，否则每次newValue和window.scrollY都相等，无法判断，20ms刚好大于watch的侦听周期，故延时20ms
