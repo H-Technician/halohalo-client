@@ -1,5 +1,5 @@
 <template>
-    <div class="header-bar-left">
+    <div class="header-bar-left" :class="props.isFixedHeaderLeft ? 'header-bar-left-fixed' : ''">
         <a href="/" target="_self" class="entry-logo" :style="props.isFixedHeaderLeft ? '' : 'display: none'">
             <picture class="logo">
                 <img src="@/assets/img/headerlogo.png" alt="">
@@ -25,39 +25,32 @@
             <IconsHeaderbarTitleLogo class="home-title-icon"/>
             <span>首页</span>
         </a>
-        <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        <NuxtLink to="/" target="_blank" class="default-entry">
             <span>番剧</span>
         </NuxtLink>
-        <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        <NuxtLink to="/" target="_blank" class="default-entry">
             <span>漫画</span>
         </NuxtLink>
-        <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        <NuxtLink to="/" target="_blank" class="default-entry">
             <span>直播</span>
         </NuxtLink>
-        <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        <NuxtLink to="/" target="_blank" class="default-entry">
             <span>游戏中心</span>
         </NuxtLink>
-        <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        <NuxtLink to="/" target="_blank" class="default-entry">
             <span>会员购</span>
         </NuxtLink>
-        <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        <NuxtLink to="/" target="_blank" class="default-entry">
             <span>漫画</span>
         </NuxtLink>
-        <NuxtLink to="/" target="_blank" class="default-entry" 
-        :class="props.isFixedHeaderLeft ? 'default-entry-slide-down-color' : 'default-entry-color'">
+        <NuxtLink to="/" target="_blank" class="default-entry">
             <span>赛事</span>
         </NuxtLink>
         <NuxtLink to="/" target="_blank" class="default-entry-right">
             <HeaderScroll :iscolor="isScroll"/>
         </NuxtLink>
         <NuxtLink to="/" target="_blank" class="download-entry" 
-        :class="[props.isFixedHeaderLeft ? 'download-entry-slide-down-color' : 'download-entry-color', props.isShowCenter ? 'download-entry-show' : '']">
+        :class="[props.isShowCenter ? 'download-entry-show' : '']">
             <IconsHeaderbarDownLoad class='download-icon'/>
             <span>下载客户端</span>
         </NuxtLink>
@@ -101,6 +94,12 @@ watchEffect(() => {
     font-weight: 400;
     font-style: normal;
     line-height: 1.25;
+    color: #ffffff;
+    fill: #ffffff;
+}
+.header-bar-left-fixed {
+    color: #000000;
+    fill: #000000;
 }
 
 .logo {
@@ -207,14 +206,6 @@ watchEffect(() => {
     font-size: 14px;
     cursor: pointer;
     margin-right: 15px;
-}
-.default-entry-color, .download-entry-color {
-    color: #ffffff;
-    fill: #ffffff;
-}
-.default-entry-slide-down-color, .download-entry-slide-down-color {
-    color: #000000;
-    fill: #000000;
 }
 .download-entry .download-icon {
     width: 16px;

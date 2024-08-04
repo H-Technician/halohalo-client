@@ -10,6 +10,14 @@ body, html {
 button {
     font-family: "HarmonyOS_Sans_SC_Medium";
 }
+/* a 样式 */
+a:link,
+a:visited,
+a:hover,
+a:active {
+    color: inherit; /* 设置未访问过的链接颜色 */
+    text-decoration: none; /* 移除下划线 */
+}
 /* 提示框 */
 .ui-tip{
     top: 120%;

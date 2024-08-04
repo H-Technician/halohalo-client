@@ -6,7 +6,7 @@
         </template>
     </DialogLoginDiaLog>
     <!-- 头像 -->
-    <div class="right-entry">
+    <div class="right-entry" :class="props.isFixedHeaderRight ? 'right-entry-fixed' : ''">
         <div class="header-avater" v-if="isLogin">
             <PopoverAvatarPopover popStyle="padding-top: 16px; margin-left: -13px;" @isShowPopover="isShowAvatarPopover">
                 <template #reference>
@@ -47,7 +47,7 @@
                     <template #reference>
                         <!-- 未读信息数量 -->
                         <div class="red-num-message">12</div>
-                        <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                        <NuxtLink to="/test" target="_blank" class="right-entry--outside">
                                 <IconsHeaderbarDaHuiyuan />
                             <span>大会员</span>
                         </NuxtLink>
@@ -63,7 +63,7 @@
             <div class="right-entry-item-message" v-if="isLogin">
                 <!-- 未读信息数量 -->
                 <div class="red-num-message">12</div>
-                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <NuxtLink to="/test" target="_blank" class="right-entry--outside">
                         <IconsHeaderbarXioaXi />
                     <span>消息</span>
                 </NuxtLink>
@@ -71,7 +71,7 @@
             <div class="right-entry-item-message" v-else>
                 <Popover popStyle="padding-top: 16px;">
                     <template #reference>
-                        <div class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                        <div class="right-entry--outside">
                                 <IconsHeaderbarXioaXi />
                             <span>消息</span>
                         </div>
@@ -89,7 +89,7 @@
             <div class="right-entry-item-dynamic" v-if="isLogin">
                 <!-- 未读信息数量 -->
                 <div class="red-num-message">12</div>
-                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <NuxtLink to="/test" target="_blank" class="right-entry--outside">
                         <IconsHeaderbarDongTai />
                     <span>动态</span>
                 </NuxtLink>
@@ -97,7 +97,7 @@
             <div class="right-entry-item-dynamic" v-else>
                 <Popover popStyle="padding-top: 16px;">
                     <template #reference>
-                        <div class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                        <div class="right-entry--outside">
                                 <IconsHeaderbarDongTai />
                             <span>动态</span>
                         </div>
@@ -113,7 +113,7 @@
         <!-- 收藏 -->
         <div class="right-entry-item">
             <div class="right-entry-item-collection" v-if="isLogin">
-                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <NuxtLink to="/test" target="_blank" class="right-entry--outside">
                         <IconsHeaderbarShiouCang />
                     <span>收藏</span>
                 </NuxtLink>
@@ -121,7 +121,7 @@
             <div class="right-entry-item-collection" v-else>
                 <Popover popStyle="padding-top: 16px;">
                     <template #reference>
-                        <div class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                        <div class="right-entry--outside">
                                 <IconsHeaderbarShiouCang />
                             <span>收藏</span>
                         </div>
@@ -137,7 +137,7 @@
         <!-- 历史 -->
         <div class="right-entry-item">
             <div class="right-entry-item-history" v-if="isLogin">
-                <NuxtLink to="/test" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <NuxtLink to="/test" target="_blank" class="right-entry--outside">
                         <IconsHeaderbarLiSHi />
                     <span>历史</span>
                 </NuxtLink>
@@ -145,7 +145,7 @@
             <div class="right-entry-item-history" v-else>
                 <Popover popStyle="padding-top: 16px;">
                     <template #reference>
-                        <div class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                        <div class="right-entry--outside">
                                 <IconsHeaderbarLiSHi />
                             <span>历史</span>
                         </div>
@@ -161,13 +161,13 @@
         <!-- 创作中心 -->
         <div class="right-entry-item">
             <div class="right-entry-item-creation" v-if="isLogin">
-                <NuxtLink to="/platform/upload/video/frame?spm_id_from=333.1007.0.0" target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <NuxtLink to="/platform/upload/video/frame?spm_id_from=333.1007.0.0" target="_blank" class="right-entry--outside">
                         <IconsHeaderbarChiuangZuo />
                     <span>创作中心</span>
                 </NuxtLink>
             </div>
             <div class="right-entry-item-creation" v-else>
-                <div target="_blank" class="right-entry--outside" :class="props.isFixedHeaderRight ? 'right-entry--outside-slide-down' : 'right-entry--outside-color'">
+                <div target="_blank" class="right-entry--outside">
                         <IconsHeaderbarChiuangZuo />
                     <span>创作中心</span>
                 </div>
@@ -304,6 +304,8 @@ onBeforeMount(async() => {
     align-items: center;
     margin-left: 20px;
     flex-shrink: 0;     /*容器空间不足时不缩小，即固定大小*/
+    fill: #ffffff;
+    color: #ffffff;
     .header-avater {
         position: relative;
         box-sizing: content-box;
@@ -313,6 +315,10 @@ onBeforeMount(async() => {
         display: flex;
         align-items: center;
     }
+}
+.right-entry-fixed {
+    fill: #000000;
+    color: #000000;
 }
 .right-entry-item {
     position: relative;
@@ -463,27 +469,6 @@ onBeforeMount(async() => {
     cursor: pointer;
 }
 
-.right-entry--outside-slide-down {
-    fill: #000000;
-    color: #000000;
-}
-.right-entry--outside-color {
-    fill: #ffffff;
-    color: #ffffff;
-}
-.right-entry--outside :deep(.el-badge__content) {
-    border: none !important;
-    font-size: 11px;
-    padding: 0 2px;
-    height: 16px;
-}
-
-.right-entry--outside :deep(.is-dot) {
-    border: none !important;
-    height: 7px !important;
-    width: 3px !important;
-    right: 6px;
-}
 .right-entry--outside .iconfont {
     font-size: 20px;
     display: inline-block;
