@@ -6,6 +6,7 @@
         <!-- 视频播放区域 -->
         <div class="player-video-area" 
         id="video-area" 
+        :class="isWebFullScreen ? 'web-full-screen player-video-area-web-full' : ''"
         ref="videoPlayerRef"
         @mouseleave="hideControls"
         :style="isShowCursor ? '' : 'cursor: none;'">
@@ -54,6 +55,7 @@
           :volume="volume"
           :inPictureInPicture="isInPictureInPicture"
           :buffer="buffer"
+          :webFullScreen="isWebFullScreen"
           @toggleFullscreen="toggleFullscreen"
           @togglePlayPause="togglePlayPause"
           @changeCurrent="changeCurrent" 
@@ -62,6 +64,7 @@
           @toggleMute="toggleMute"
           @togglePiP="togglePiP"
           @changeBackrate="changeBackrate"
+          @toggleWebFullscreen="toggleWebFullscreen"
           />
           <!-- MINI播放器容器 -->
           <div class="player-mini-warp"
@@ -123,6 +126,8 @@ const isShowMinPlayer = ref(false); // 是否显示小播放器
 const observer = ref<IntersectionObserver | null>(null); // 监听是否在视窗内
 const minPlayerRight = ref(100); // 小播放器距离右
 const minPlayerBottom = ref(100); // 小播放器距离下
+const isWebFullScreen = ref(false);
+const emit = defineEmits(['changWebFullScreen']);
 // props
 const props = defineProps({
     videoUrl: {
@@ -211,6 +216,17 @@ const changeBackrate = (backrate: number) => {
     if (!videoPlayer.value) return;
     videoPlayer.value.playbackRate = backrate;
 };
+const toggleWebFullscreen = () => {
+    if (!isWebFullScreen.value) {
+        isWebFullScreen.value = true;
+        emit('changWebFullScreen', isWebFullScreen.value);
+        document.body.style.overflow = 'hidden';
+    } else {
+        isWebFullScreen.value = false;
+        emit('changWebFullScreen', isWebFullScreen.value);
+        document.body.style.overflow = '';
+    }
+};
 // 显示控制条
 const showControls = (position: string) => {
     clearTimeout(inCtrlTimer);
@@ -295,6 +311,11 @@ const enterFullscreen = (element: HTMLDivElement) => {
 // 监听全屏状态变化
 const handleFullscreenChange = () => {
     isFullscreen.value = document.fullscreenElement !== null;
+    if (isWebFullScreen.value) {
+      isWebFullScreen.value = false;
+      emit('changWebFullScreen', false);
+      document.body.style.overflow = '';
+    }
     showControls('video');
 };
 // 监听画中画状态改变
@@ -630,6 +651,14 @@ onUnmounted(() => {
         -ms-user-select: none;
         user-select: none;
       }
+      .web-full-screen {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 99999;
+      }
     }
   }
 }
@@ -651,6 +680,10 @@ onUnmounted(() => {
     }
   
     .player-video-area:-ms-fullscreen {
+      @content;
+    }
+    // 网页全屏样式
+    .player-video-area-web-full {
       @content;
     }
 }
@@ -705,7 +738,88 @@ onUnmounted(() => {
             }
         }
     }
+    :deep(.player-cmd-dm-wrap) {
+      @media (min-width: 1366.9px) {
+        .hl-editor {
+          height: 45px;
+          .hl-guide-three {
+            height: 45px;
+            width: 177.5px;
+            span {
+              box-sizing: border-box;
+              width: 56.25px;
+              height: 45px;
+              .hl-icon {
+                width: 100%;
+                height: 100%;
+              }
+            }
+          }
+          .hl-guide-follow {
+            width: 82.5px;
+            height: 30px;
+          }
+        }
+        .hl-link {
+          height: 62.5px;
+          .hl-link-left {
+            width: 290px;
+            height: 62.5px;
+            .hl-link-icon {
+              width: 112.5px;
+              height: 62.5px;
+            }
+            .hl-link-msg {
+              width: 177.5px;
+            }
+          }
+          .hl-link-line {
+            width: 1.25px;
+            height: 45px;
+          }
+          .hl-link-right {
+            width: 56.25px;
+            height: 62.5px;
+            .hl-link-watchlater {
+              .hl-link-watchlater-icon {
+                  width: 25px;
+                  height: 25px;
+              }
+            }
+          }
+        }
+        .hl-vote {
+          .hl-vote-question {
+            width: 196.25px;
+            height: 17.5px;
+            line-height: 17.5px;
+            font-size: 13px;
+          }
+          .hl-vote-an {
+            width: 196.25px;
+            height: 32.5px;
+            .hl-vote-an-bg {
+                .hl-vote-an-bg-buffer {
+                    width: 32.5px;
+                }
+            }
+            .hl-vote-an-text {
+                height: 32.5px;
+                line-height: 32.5px;
+                font-size: 13px;
+                .hl-vote-an-text-index {
+                    width: 13.5px;
+                }
+                .hl-vote-an-text-doc {
+                    width: 120px;
+                }
+            }
+          }
+        }
+      }
+    }
 }
+
 // 淡入动画
 @keyframes fadeIn {
   from {

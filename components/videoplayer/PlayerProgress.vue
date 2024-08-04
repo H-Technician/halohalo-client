@@ -209,7 +209,7 @@ onUnmounted(() => {
         display: -ms-flexbox;
         display: flex;
         height: 16px;
-        padding-bottom: 6px;
+        padding-top: 2px;
 
         .player-progress {
             -webkit-box-align: center;
@@ -308,6 +308,10 @@ onUnmounted(() => {
 
             .is_active {
                 display: block;
+            }
+            &:hover {
+                height: 4px;
+                transition: height .2s ease-in-out;
             }
         }
 

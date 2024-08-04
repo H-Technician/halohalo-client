@@ -5,6 +5,7 @@ export interface InteractionLike {
     uid: number
     left: number
     top: number
+    type: number
     timeStart: number
     timeEnd: number
 }

@@ -97,6 +97,13 @@
                             <IconsPlayCommon class="icon"/>
                         </div>
                     </Tooltip>
+                    <!-- 网页全屏 -->
+                    <Tooltip :overlayStyle="{ marginBottom: props.webFullScreen ? 36 + 'px' : 22 + 'px' }" v-if="!isFullscreen">
+                        <template #tooltip>{{ props.webFullScreen ? '退出网页全屏' : '网页全屏'}}</template>
+                        <div class="player-controls-item controls-icon" @click="toggleWebFullscreen">
+                            <IconsPlayWebScreen class="icon"/>
+                        </div>
+                    </Tooltip>
                     <!-- 全屏 -->
                     <Tooltip :overlayStyle="{ marginBottom: isFullscreen ? 36 + 'px' : 22 + 'px' }">
                         <template #tooltip>{{ isFullscreen ? '退出全屏(f)' : '进入全屏(f)'}}</template>
@@ -131,11 +138,16 @@ const emit = defineEmits([
     'updateVolume', 
     'toggleMute', 
     'togglePiP',
-    'changeBackrate'
+    'changeBackrate',
+    'toggleWebFullscreen'
 ]);
 const props = defineProps({
     // 是否全屏
     fullscreen: {
+        type: Boolean,
+        default: false
+    },
+    webFullScreen: {
         type: Boolean,
         default: false
     },
@@ -190,6 +202,10 @@ const toggleMute = () => {
 // 切换全屏状态
 const toggleFullscreen = () => {
     emit('toggleFullscreen');
+};
+// 切换网页全屏状态
+const toggleWebFullscreen = () => {
+    emit('toggleWebFullscreen');
 };
 // 画中画
 const togglePiP = () => {
@@ -267,7 +283,7 @@ onMounted(() => {
 .player-controls {
     display: block;
     position: absolute;
-    height: 70px;
+    height: 65px;
     width: 100%;
     bottom: 0;
     left: 0;
@@ -289,7 +305,7 @@ onMounted(() => {
         }
         .player-controls-bottom {
             width: 100%;
-            height: 50px;
+            height: 45px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -298,9 +314,10 @@ onMounted(() => {
                 display: flex;
                 align-items: center;
                 flex: 0 0 auto;
+                height: 22px;
                 .player-controls-play-icon {
-                    width: 24px;
-                    height: 24px;
+                    width: 22px;
+                    height: 22px;
                     cursor: pointer;
                     fill: #ffffff;
                     .icon {
@@ -326,7 +343,7 @@ onMounted(() => {
                 
                 .player-controls-play-time {
                     width: auto;
-                    height: 24px;
+                    height: 22px;
                     display: flex;
                     align-items: center;
                     margin-left: 10px;

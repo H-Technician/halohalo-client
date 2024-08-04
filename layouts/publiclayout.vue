@@ -1,9 +1,20 @@
 <template>
   <div class="layout">
-      <HeaderBar :OPenHeader="true" :isShadow="true"/>
+      <HeaderBar 
+      :OPenHeader="true" 
+      :isShadow="true"
+      :isDisplayHeader="props.isDisplayHeader" />
     <slot />
   </div>
 </template>
+<script setup lang="ts">
+const props = defineProps({
+    isDisplayHeader: {
+        type: Boolean,
+        default: true
+    }
+})
+</script>
 <style scoped>
 .layout {
     position: absolute;

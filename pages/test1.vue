@@ -1,5 +1,5 @@
 <template>
-    <NuxtLayout name="searchlayout">
+    <NuxtLayout name="searchlayout" :isDisplayHeader="isDisplayHeader">
         <Title>哈喽哈喽 (゜-゜)つロ 干杯~-halohalo-测试页面2</Title>
         <!-- <div class="test">>
             <div id="app"></div>
@@ -62,7 +62,7 @@
             <CropperPicture :videoFile="url"></CropperPicture>
         </ClientOnly> -->
         <div style="height: 458px; width: 732px; margin: 0 auto; margin-bottom: 40px; z-index: 1; position: relative;">
-            <VideoplayerPlayer :videoUrl="m3u8Url"/>
+            <VideoplayerPlayer :videoUrl="m3u8Url" @changWebFullScreen="changWebFullScreen"/>
         </div>
         <div style="width: 100%; display: flex; justify-content: center;">
             <el-button type="primary" @click="govideo(0)">NeverGonna Give You Up</el-button>
@@ -91,6 +91,7 @@ const test1 = ref(false);
 const img = ref('')
 const url = ref();
 const file1 = ref();
+const isDisplayHeader = ref(true);
 const videoUrls = [
     'https://static.v.hblog.top/uploads_2022_09_24_ge4ZfU9g_137649199_u2-1-208/index.m3u8',
     'https://static.v.hblog.top/《满天星辰不及你》范静如胡轶涵：青岛大学2022年6月18日毕业典礼快闪（官方超清字幕版）/index.m3u8',
@@ -145,7 +146,14 @@ const handleImagesChange = async (event: Event) => {
     // const md5 = getFileMD5(file);
     // console.log(md5);
 };
-
+const changWebFullScreen = (isWebFullScreen: boolean) => {
+    if (!isWebFullScreen) {
+        isDisplayHeader.value = true;
+    } else {
+        isDisplayHeader.value = false;
+    }
+    // console.log(isWebFullScreen);
+}
 async function readFileAsDataURL(file: File) {
     return new Promise((resolve, reject) => {
     const reader = new FileReader();

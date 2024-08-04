@@ -1,10 +1,20 @@
 <template>
     <div class="search-layout">
-        <HeaderBar :OPenHeader="true" :isShadow="true" :isShowCenter="false" />
+        <HeaderBar 
+        :OPenHeader="true" 
+        :isShadow="true" 
+        :isShowCenter="false" 
+        :isDisplayHeader="props.isDisplayHeader"/>
         <slot />
     </div>
 </template>
 <script setup lang="ts">
+const props = defineProps({
+    isDisplayHeader: {
+        type: Boolean,
+        default: true
+    }
+})
 </script>
 <style scoped>
 .search-layout {

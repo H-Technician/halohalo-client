@@ -5,14 +5,13 @@
         <div class="hl-line-vertical" :class="lineVerticalClasses" v-if="props.isUpload"></div>
         <div class="hl-editor" 
         ref="editorRef" 
-        v-if="true" 
+        v-if="props.like" 
         :class="isShowLike ? '' : 'hl-hide'"
         :style="{top: likeTop + '%', left: likeLeft + '%'}">
-            <span class="hl-circle">
-                <IconsPlayClose :progress="likeProgress"/>
-            </span>
-            <div class="hl-guide-three">
-                <span class="hl-guide-three-like">
+            <div class="hl-guide-three" 
+            v-if="props.like.type === 1 
+            || props.like.type === 2">
+                <span class="hl-guide-three-like is_active">
                     <IconsPlayLike class="hl-icon"/>
                 </span>
                 <span class="hl-guide-three-coin">
@@ -22,9 +21,11 @@
                     <IconsPlayCollect class="hl-icon" />
                 </span>
             </div>
-            <div class="hl-guide-follow">
+            <div class="hl-guide-follow" 
+            v-if="props.like.type === 1 
+            || props.like.type === 3">
                 <span class="hl-guide-follow-0" v-if="true">
-                    <el-icon><ElIconPlus /></el-icon>
+                    <el-icon size="14" color="#ffffff"><ElIconPlus /></el-icon>
                     <span>关注</span>
                 </span>
                 <span class="hl-guide-follow-1" v-else>已关注</span>
@@ -32,7 +33,7 @@
         </div>
         <div class="hl-link" 
         ref="linkRef" 
-        v-if="true" 
+        v-if="props.link" 
         :class="isShowLink ? '' : 'hl-hide'"
         :style="{top: linkTop + '%', left: linkLeft + '%'}">
             <span class="hl-circle">
@@ -56,7 +57,7 @@
         </div>
         <div class="hl-vote" 
         ref="voteRef"
-        v-if="true" 
+        v-if="props.vote" 
         :class="isShowVote ? '' : 'hl-hide'"
         :style="{top: voteTop + '%', left: voteLeft + '%'}">
             <span class="hl-circle">
@@ -98,9 +99,11 @@ const lineRightShow = ref(false); // 右边界线段显示
 const isShowLike = ref(false); // 是否显示点赞
 const isShowLink = ref(false); // 是否显示链接
 const isShowVote = ref(false); // 是否显示投票
-const likeProgress = ref(0); // 点赞显示进度
 const linkProgress = ref(0); // 链接显示进度
 const voteProgress = ref(0); // 投票显示进度
+const isCloseLike = ref(false);
+const isCloseLink = ref(false);
+const isCloseVote = ref(false);
 const emit = defineEmits(['updateLike', 'updateLink', 'updateVote']);
 // props
 const props = defineProps({
@@ -124,6 +127,7 @@ const props = defineProps({
             uid: 1,
             left: 60,
             top: 60,
+            type: 1, // 1 三连加关注 2 仅三连 3 仅关注
             timeStart: 10,
             timeEnd: 24
         }),
@@ -186,53 +190,6 @@ const props = defineProps({
         }),
     }
 });
-// {
-//             id: 1,
-//             vid: 1,
-//             uid: 1,
-//             timepoint: 10
-//         }
-// {
-//             id: 1,
-//             vid: 1,
-//             uid: 1,
-//             timepoint: 20,
-//             link_url: 'https://www.bilibili.com/',
-//             link_content: 'bilibili'
-//         }
-// {
-//             id: 1,
-//             vid: 1,
-//             uid: 1,
-//             timepoint: 60,
-//             question: '老吴帅吗？',
-//             VoteOptions: [
-//             {
-//                 id: 0,
-//                 voteid: 0,
-//                 option_text: '老吴帅',
-//                 anvote_count: 0,
-//             },
-//             {
-//                 id: 0,
-//                 voteid: 0,
-//                 option_text: '老吴很帅',
-//                 anvote_count: 0,
-//             },
-//             {
-//                 id: 0,
-//                 voteid: 0,
-//                 option_text: '老吴一般',
-//                 anvote_count: 0,
-//             },
-//             {
-//                 id: 0,
-//                 voteid: 0,
-//                 option_text: '其他，请补充',
-//                 anvote_count: 0,
-//             }
-//         ]
-//         }
 // 上下左右四条边界线段显示
 const lineHorizontalClasses = computed(() => {
   return [
@@ -252,11 +209,7 @@ const displaylike = (currTimePoint: number) => {
         isShowLike.value = true;
     } else if (props.like.timeEnd <= currTimePoint || currTimePoint < props.like.timeStart) {
         isShowLike.value = false;
-        likeProgress.value = 1;
     }
-    if (isShowLike.value) {
-        likeProgress.value = (currTimePoint - props.like.timeStart) / (props.like.timeEnd - props.like.timeStart);
-    } 
 };
 // 显示视频链接链接
 const displaylink = (currTimePoint: number) => {
@@ -463,7 +416,7 @@ onMounted(() => {
         display: block;
     } 
     .hl-editor {
-        width: 220px;
+        width: auto;
         height: 36px;
         background: rgba(24, 25, 28, .8);
         -webkit-box-align: center;
@@ -483,7 +436,6 @@ onMounted(() => {
         transform-origin: center;
         -webkit-transition: opacity .35s;
         transition: opacity .35s;
-        transition: .35s allow-discrete;
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
@@ -492,13 +444,6 @@ onMounted(() => {
         color: #FFFFFF;
         fill: #FFFFFF;
         opacity: 1;
-        .hl-circle {
-            width: 20px;
-            height: 20px;
-            position: absolute;
-            right: -14px;
-            top: -14px;
-        }
         .hl-guide-three {
             border-radius: 8px;
             -webkit-box-sizing: border-box;
@@ -506,12 +451,17 @@ onMounted(() => {
             font-size: 0;
             padding: 0 3px;
             width: 142px;
+            height: 36px;
             span {
                 display: inline-block;
                 height: 20px;
                 padding: 8px 12.5px;
                 width: 20px;
             }
+            .is_active {
+                fill: $theme-color;
+            }
+            // 275 45 142 36 78 36
         }
         .hl-guide-follow {
             font-size: 12px;
@@ -532,6 +482,9 @@ onMounted(() => {
                 display: -webkit-box;
                 display: -ms-flexbox;
                 display: flex;
+                span {
+                    font-size: 14px;
+                }
             }
             .hl-guide-follow-1 {
                 -webkit-box-align: center;
@@ -540,6 +493,9 @@ onMounted(() => {
                 display: -webkit-box;
                 display: -ms-flexbox;
                 display: flex;
+                span {
+                    font-size: 14px;
+                }
             }
         }
     }
@@ -573,14 +529,16 @@ onMounted(() => {
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-        width: 290px;
+        // width: 290px;
+        width: auto;
         z-index: 1;
+        // 290 50
         .hl-circle {
             width: 20px;
             height: 20px;
             position: absolute;
-            right: -14px;
-            top: -14px;
+            right: -16px;
+            top: -16px;
         }
         .hl-link-left {
             -webkit-box-align: center;
@@ -590,6 +548,7 @@ onMounted(() => {
             display: -ms-flexbox;
             display: flex;
             height: 100%;
+            width: 232px;
             .hl-link-icon {
                 background: #fff url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAodJREFUaEPtWDtsE0EQfXMu6RAS3jlbgooCCA1SKhBdKjqgoAo9Lb8udCBBhQRl0tBAgyhpEKIJRaqAKEGyvWsEokG0N3CSHW3snHfvds/Wyb52Z968N7OzpxlCwz9qOH+sBCy6gstVgcFgsJUkyTUR+UlEz5VSr2NUwBhzXUTuAfgjIh/SNN3yxS1VAa31ewBXxuBEdCNUxIj8Kwvzi1Lq3FwE5EFCREySH5HeY+aLtQgoCFhJRCysUlcoz0qMwDEwDq6cb6lsuxACIb5HcS1dgTFIFSJVfFwJnilAa30if96IaA3ABQAnXYAxzolIA9gD8PV/zBdKqe9FuIUCtNaXALwBcDwGqQCMv1mW3e50OjveV6jf728mSbIdELQO18vM/HESeKoCxphTIvIZwLE6WARg/gZwhpl/2RhHCXgsIndtIxF5lmXZy263+ymAgLer1nqDiJ6KyNkJHk/SNL3jEvBWRK5av/YdpdQt7+gRDY0xuyKybkG+Y+YNl4CBiLAl4PSsVyAi3ymoXq+33mq1dq2DH8zcnilAay22ATNX/lfEEOfiM0XO5RCDVBkMF5/lFWAPN2WHkLwCvv61VcAeboio1BCSC/D1r1NAULO7iI37xGVXuQdcwK5G9fV32a0EjDNd9n/hyuw8rtDBhqKRTez7DBb1gq+/q1KVe8DVpLHOVwLKNmeszNfexLGJFuEt3xUyxhwaaJIkWWu32/vzyrgdZzSffys10BhjDo2UAB4x84MFCdgWkc2yI+XUUE9E+U7m4bxGy+FweD7LspsA7tuJExGvob7Za5VccaMXW9b729zVoiWiucvdRbw6VWIudOdThfCkz0pAjCyGYKwqEJK9GL7/AEbrAk+wbT0GAAAAAElFTkSuQmCC) no-repeat;
                 background-position: 50%;
@@ -634,6 +593,7 @@ onMounted(() => {
             display: flex;
             height: 100%;
             font-size: 10px;
+            width: 45px;
             .hl-link-watchlater {
                 -webkit-box-align: center;
                 -ms-flex-align: center;
@@ -676,14 +636,15 @@ onMounted(() => {
         transform: translate(-50%, -50%) scale(1);
         -webkit-transform-origin: center;
         transform-origin: center;
-        width: 177px;
+        width: auto;
         height: auto;
+        // 157 
         .hl-circle {
             width: 20px;
             height: 20px;
             position: absolute;
-            right: -14px;
-            top: -14px;
+            right: -16px;
+            top: -16px;
         }
         .hl-vote-question {
             height: 14px;
@@ -691,12 +652,14 @@ onMounted(() => {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            width: 157px;
+            font-size: 12px;
         }
         .hl-vote-an {
             color: #fff;
             cursor: pointer;
             position: relative;
-            width: 100%;
+            width: 157px;
             height: 26px;
             margin-top: 6px;
             margin-bottom: 6px;
@@ -704,12 +667,12 @@ onMounted(() => {
                 background: hsla(0, 0%, 100%, .2);
                 border-radius: 4px;
                 top: 0;
-                height: 26px;
+                height: 100%;
                 left: 0;
                 position: absolute;
                 width: 100%;
                 .hl-vote-an-bg-buffer {
-                    height: 26px;
+                    height: 100%;
                     left: 0;
                     position: absolute;
                     top: 0;
@@ -728,6 +691,7 @@ onMounted(() => {
                 padding-right: 20px;
                 position: relative;
                 width: 100%;
+                font-size: 12px;
                 .hl-vote-an-text-index {
                     -webkit-box-flex: 0;
                     border-radius: 4px;

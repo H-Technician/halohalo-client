@@ -1,13 +1,12 @@
 <template>
-    <div class="header-bar" :class="isOPenHeaderBar ? 'header-bar-slide-down' : ''" :style="props.isShadow ? 'box-shadow: 0 0 30px rgba(0,0,0,.1);' : ''">
-        <HeaderBarLeft :OPenHeaderLeft="isOPenHeaderBar" :isShowCenter="props.isShowCenter"/>
-        <HeaderBarCenter :OPenHeadercenter="isOPenHeaderBar" :style="props.isShowCenter ? '' : 'visibility: hidden;  display: none;'" />
-        <HeaderBarRight :OPenHeaderRight="isOPenHeaderBar" />
+    <div class="header-bar" :class="HeaderClasses" :style="props.isShadow ? 'box-shadow: 0 0 30px rgba(0,0,0,.1);' : ''">
+        <HeaderBarLeft :OPenHeaderLeft="props.OPenHeader" :isShowCenter="props.isShowCenter"/>
+        <HeaderBarCenter :OPenHeadercenter="props.OPenHeader" :style="props.isShowCenter ? '' : ' display: none;'" />
+        <HeaderBarRight :OPenHeaderRight="props.OPenHeader" />
     </div>
 </template>
 
 <script lang="ts" setup>
-const isOPenHeaderBar = ref(false)
 const props = defineProps({
     OPenHeader: {
         type: Boolean
@@ -19,14 +18,17 @@ const props = defineProps({
     isShowCenter: {
         type: Boolean,
         default: true
+    },
+    isDisplayHeader: {
+        type: Boolean,
+        default: true
     }
 })
-watchEffect(() => {
-  if (props.OPenHeader) {
-    isOPenHeaderBar.value = true
-  } else {
-    isOPenHeaderBar.value = false
-  }
+const HeaderClasses = computed(() => {
+  return [
+    props.OPenHeader ? 'header-bar-slide-down' : '',
+    props.isDisplayHeader ? '' : 'hide-header-bar'
+  ].filter(Boolean);
 });
 </script>
 <style scoped>
@@ -46,6 +48,7 @@ watchEffect(() => {
     width: 100%;
     height: 64px;
     min-width: 1236px;
+    /* visibility: visible; */
 }
 
 .header-bar-slide-down {
@@ -60,6 +63,8 @@ watchEffect(() => {
     background-color: #ffffff;
     z-index: 3;
 }
-
+.hide-header-bar {
+    visibility: hidden;
+}
 </style>
   
