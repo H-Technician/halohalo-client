@@ -101,7 +101,6 @@ const isShowLink = ref(false); // 是否显示链接
 const isShowVote = ref(false); // 是否显示投票
 const linkProgress = ref(0); // 链接显示进度
 const voteProgress = ref(0); // 投票显示进度
-const isCloseLike = ref(false);
 const isCloseLink = ref(false);
 const isCloseVote = ref(false);
 const emit = defineEmits(['updateLike', 'updateLink', 'updateVote']);

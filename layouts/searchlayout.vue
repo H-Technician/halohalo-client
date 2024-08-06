@@ -24,6 +24,6 @@ const props = defineProps({
     max-width: 2560px;
     background-color: #ffffff;
     overflow: auto;
-    min-width: 1236px;
+    min-width: 1186px;
 }
 </style>

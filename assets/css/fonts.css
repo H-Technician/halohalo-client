@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'HarmonyOS_Sans_SC_Medium';
   font-weight: normal;
-  src: url('@/assets/fonts/HarmonyOS_Sans_SC_Medium.ttf') format('truetype');
+  src: url('/assets/fonts/HarmonyOS_Sans_SC_Medium.ttf') format('truetype');
 }
   
   /* .iconfont {

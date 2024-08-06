@@ -47,8 +47,7 @@ const HeaderClasses = computed(() => {
     max-width: 2560px;
     width: 100%;
     height: 64px;
-    min-width: 1236px;
-    /* visibility: visible; */
+    min-width: 1186px;
 }
 
 .header-bar-slide-down {

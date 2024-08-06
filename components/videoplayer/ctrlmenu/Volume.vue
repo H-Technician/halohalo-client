@@ -1,13 +1,17 @@
 <template>
-    <div class="player-ctrl-volume-box">
-        <div class="player-ctrl-volume-number">{{ volume }}</div>
+    <div class="player-ctrl-volume-box" 
+    ref="volumeBoxRef"
+    @mouseover="startListeningToWheel" 
+    @mouseout="stopListeningToWheel" 
+    @wheel.prevent="handleVolumeChangeWithWheel">
+        <div class="player-ctrl-volume-number">{{ Math.round(props.volume * 100) }}</div>
         <div class="player-ctrl-volume-progress">
             <div class="volume-progress-slider"  ref="volumeSlider">
                 <div class="bui-bar-wrap">
-                    <div class="bui-bar"  :style="{ height: `${volume}%` }"></div>
+                    <div class="bui-bar"  :style="{ height: `${props.volume * 100}%` }"></div>
                 </div>
                 <div class="bui-thumb">
-                    <div class="bui-thumb-dot" :style="{ bottom: `calc(${volume}% - 6px)` }"></div>
+                    <div class="bui-thumb-dot" :style="{ bottom: `calc(${props.volume * 100}% - 6px)` }"></div>
                 </div>
             </div>
         </div>
@@ -15,7 +19,7 @@
 </template>
 <script setup lang="ts">
 const volumeSlider = ref<HTMLDivElement | null>(null);
-const volume = ref(0); // 初始音量
+const volumeBoxRef = ref<HTMLDivElement | null>(null);
 const isDragging = ref(false);
 const emit = defineEmits(['updateVolume']);
 const props = defineProps ({
@@ -37,8 +41,8 @@ const initDrag = () => {
         // 边界值判定
         currPer = Math.max(0, currPer);
         currPer = Math.min(1, currPer);
-        volume.value = Math.round(currPer * 100);
-        emit('updateVolume', currPer.toFixed(1));
+        // Math.round(currPer * 100);
+        emit('updateVolume', currPer);
     });
 
     // 鼠标移动事件处理程序
@@ -50,8 +54,8 @@ const initDrag = () => {
         // 边界值判定
         currPer = Math.max(0, currPer);
         currPer = Math.min(1, currPer);
-        volume.value = Math.round(currPer * 100);
-        emit('updateVolume', currPer.toFixed(1));
+        // Math.round(currPer * 100);
+        emit('updateVolume', currPer);
     });
 
 
@@ -65,14 +69,30 @@ const initDrag = () => {
         isDragging.value = false;
     });
 };
-// 监听 volume 的变化
-watch(() => props.volume, (newVal) => {
-    volume.value = newVal * 100;
-});
+const startListeningToWheel = () => {
+  if (volumeBoxRef.value) {
+    volumeBoxRef.value.addEventListener('wheel', handleVolumeChangeWithWheel, { passive: false });
+  }
+};
+
+const stopListeningToWheel = () => {
+  if (volumeBoxRef.value) {
+    volumeBoxRef.value.removeEventListener('wheel', handleVolumeChangeWithWheel);
+  }
+};
+const handleVolumeChangeWithWheel = (event: WheelEvent) => {
+  // 滚轮事件处理
+  if (event.deltaY < 0) {
+    // 向上滚动，增加音量
+    emit('updateVolume', Math.min(1, Math.max(0, props.volume + 0.01)));
+  } else if (event.deltaY > 0) {
+    // 向下滚动，减少音量
+    emit('updateVolume', Math.min(1, Math.max(0, props.volume - 0.01)));
+  }
+};
 onMounted(() =>{
-    // 初始化拖动
+    // 初始化音量条拖动
     initDrag();
-    volume.value = props.volume * 100;
 });
 onUnmounted(() => {
     // 移除事件监听
@@ -80,6 +100,10 @@ onUnmounted(() => {
     document.removeEventListener("mousemove", () => {});
     document.removeEventListener("mouseup", () => {});
     document.removeEventListener("touchend", () => {});
+    // 移除滚轮事件监听，防止内存泄漏
+    if (volumeBoxRef.value) {
+        volumeBoxRef.value.removeEventListener('wheel', handleVolumeChangeWithWheel);
+    }
 });
 </script>
 <style scoped lang="scss">

@@ -3,7 +3,7 @@
         <div class="player-controls-danmu-left" 
         :style="props.position === 'sendBar' ? 
         'fill: #757575;' : 'fill: #ffffff;'">
-            <Tooltip :overlayStyle="{ marginBottom: props.isFullscreen ? '30px' : '16px' }">
+            <Tooltip :overlayStyle="{ marginBottom: props.isFullscreen || props.isWebFullScreen ? '30px' : '16px' }">
                 <template #tooltip>{{ showDanmu ? '关闭弹幕(d)' : '开启弹幕(d)' }}</template>
                 <div class="player-controls-danmu-switch"
                 :class="props.position === 'sendBar' ? 'player-controls-danmu-icon-hover' : ''"
@@ -25,7 +25,7 @@
             :panelStyle="props.position === 'sendBar' ? 
             'padding-bottom: 24px;' : 
             'padding-bottom: 40px;'" 
-            v-if="showDanmu">
+            :style="showDanmu ? 'display: block;' : 'display: none;'">
                 <template #reference>
                     <div class="player-controls-danmu-setting"
                     :class="props.position === 'sendBar' ? 'player-controls-danmu-icon-hover' : ''" 
@@ -41,8 +41,12 @@
             </VideoplayerPanel>
             <div class="player-controls-danmu-setting" 
             :class="showDanmu ? '' : 'disabled'"
-            :style="props.position === 'sendBar' ? 'height: 26px; width: 26px;' : 'hheight: 28px; width: 28px;'"
-            v-else>
+            :style="[props.position === 'sendBar' ? 
+            'height: 26px; width: 26px;' : 
+            'hheight: 28px; width: 28px;', 
+            showDanmu ? 
+            'display: none;' : 
+            'display: block;']">
                 <span class="player-danmaku-setting">
                     <IconsPlayDanmakuSetting class="icon"/>
                 </span>
@@ -59,7 +63,9 @@
                     :panelStyle="props.position === 'sendBar' ? 
                     'padding-bottom: 24px;' : 
                     'padding-bottom: 40px;'"
-                     v-if="showDanmu">
+                    :style="showDanmu ? 
+                    'display: block;' : 
+                    'display: none;'">
                     <template #reference>
                         <div class="player-controls-danmu-input-setting">
                             <IconsPlayDanmakuTextSetting class="icon"/>
@@ -75,11 +81,15 @@
                         placeholder="发个友善的弹幕见证当下"
                         :class="props.position === 'sendBar' ? 
                         'player-controls-danmu' : ''"
-                        :style="props.position === 'sendBar' ? 
+                        :style="[props.position === 'sendBar' ? 
                         'color: #757575' : 
-                        'color: #ffffff'"
-                        v-if="showDanmu"></input>
-                        <div class="player-controls-danmu-disabled-text" v-else>
+                        'color: #ffffff',
+                        showDanmu ? '' : 
+                        'display: none;']">
+                        </input>
+                        <div class="player-controls-danmu-disabled-text" 
+                        :style="showDanmu ? 'display: none;' : 
+                        ''">
                             已关闭弹幕
                         </div>
                     </div>
@@ -93,22 +103,45 @@
     </div>
 </template>
 <script setup lang="ts">
-const showDanmu = ref(true);
-const isShowSettingPanel = ref(false);
+const showDanmu = ref(true); // 弹幕是否开启
+const isShowSettingPanel = ref(false); // 是否展示弹幕设置面板
 const props = defineProps({
+    // 弹幕发送输入框的放置位置，sendBar, controls
     position: {
         type: String,
         default: 'sendBar' // 表示弹幕发送输入框的放置位置，sendBar, controls
     },
+    // 是否全屏
     isFullscreen: {
         type: Boolean,
         default: false
+    },
+    // 是否网页全屏
+    isWebFullScreen: {
+        type: Boolean,
+        default: false
+    },
+    // 弹幕开关
+    displayDanmu: {
+        type: Boolean,
+        default: true
     }
 
 });
+// 事件回调
+const emit = defineEmits(['changDisplayDanmu']);
+// 是否展示弹幕设置面板
 const isShowPanel = (value: boolean) => {
     isShowSettingPanel.value = value;
-}
+};
+// 监听弹幕开关的变化
+watch(() => showDanmu.value, (value) => {
+    emit('changDisplayDanmu', value);
+});
+// 监听父组件传过来的弹幕开关状态
+watch(() => props.displayDanmu, (newValue) => {
+    showDanmu.value = newValue;
+});
 </script>
 <style lang="scss" scoped>
 .player-controls-danmu-wrap {
@@ -126,7 +159,8 @@ const isShowPanel = (value: boolean) => {
             display: block;
             margin-right: 12px;
             position: relative;
-            height: 100%;
+            height: 26px;
+            width: 26px;
             .bui-danmaku-switch-input {
                 position: absolute;
                 z-index: 1;
@@ -142,8 +176,8 @@ const isShowPanel = (value: boolean) => {
             }
             .player-danmaku-switch-on {
                 display: block;
-                width: 100%;
-                height: 100%;
+                width: 26px;
+                height: 26px;
                 .icon {
                     width: 100%;
                     height: 100%;
@@ -151,8 +185,8 @@ const isShowPanel = (value: boolean) => {
             }
             .player-danmaku-switch-off {
                 display: block;
-                width: 100%;
-                height: 100%;
+                height: 26px;
+                width: 26px;
                 .icon {
                     width: 100%;
                     height: 100%;
@@ -164,8 +198,8 @@ const isShowPanel = (value: boolean) => {
             cursor: pointer;
             .player-danmaku-setting {
                 display: block;
-                width: 100%;
-                height: 100%;
+                height: 26px;
+                width: 26px;
                 .icon {
                     width: 100%;
                     height: 100%;
@@ -308,7 +342,7 @@ const isShowPanel = (value: boolean) => {
         user-select: none;   /* 禁止文本选择 */
     }
 }
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .player-controls-danmu-wrap .player-controls-danmu-right-fullscreen  {
         display: none;
     }

@@ -6,9 +6,9 @@
 <script setup lang="ts">
 import type { Danmaku } from '@/types/danmaku';
 import danmuList from '@/assets/json/danmaku.json';
-const playerDmWrapRef = ref<HTMLDivElement | null>(null);
+const playerDmWrapRef = ref<HTMLDivElement | null>(null); // 弹幕容器
 let lastTimePoint = -1; // 上一个时间点
-let timeoutId: ReturnType<typeof setTimeout>;
+let timeoutId: ReturnType<typeof setTimeout>; // 定时器id
 const dmList = ref<Danmaku[]>(danmuList);
 const rollRow = new Array(12).fill(-1); // 滚动弹幕轨道
 const topRow = new Array(12).fill(-1); // 顶部弹幕轨道
@@ -18,11 +18,15 @@ const props = withDefaults(defineProps<{
   //dmList: Danmaku[],
   currentTime: number,
   isplaying: boolean,
+  displayDanmu: boolean,
+  isLoading: boolean
   //dmSetting: { opacity: number, dmSpeed: number, fontSize: number, fontWeight: number }
 }>(), {
   //dmList: () => [],
   currentTime: 0,
   isplaying: false,
+  displayDanmu: true,
+  isLoading: false
   //dmSetting: () => ({ opacity: 100, dmSpeed: 1, fontSize: 25, fontWeight: 700 })
 });
 // 查询时间点弹幕
@@ -166,11 +170,11 @@ const handleMouseOut = (event: MouseEvent) => {
 };
 
 watch(() => props.currentTime, (currTimePoint) => {
-  if ((currTimePoint - lastTimePoint) >= 1) {
-    lastTimePoint = currTimePoint;
-    return;
+  if ((currTimePoint - lastTimePoint) >= 1 || (currTimePoint - lastTimePoint) <= -1) {
+    // 重新定位弹幕索引
+    lastTimePoint = currTimePoint - 1;
   };
-  if (props.isplaying) {
+  if (props.isplaying && props.displayDanmu) {
     displayDanmus(currTimePoint);
   }
 });
@@ -184,6 +188,32 @@ watch(() => props.isplaying, (newValue) => {
     playerDmWrapRef.value.classList.remove('state-paused');
   }
 });
+watch(() => props.isLoading, (newValue) => {
+  if (!playerDmWrapRef.value) return;
+  if (newValue) {
+    // 暂停
+    playerDmWrapRef.value.classList.add('state-paused');
+  } else {
+    // 播放
+    playerDmWrapRef.value.classList.remove('state-paused');
+  }
+});
+// 监听弹幕打开/关闭状态
+watch(() => props.displayDanmu, (newValue) => {
+  if (!playerDmWrapRef.value) return;
+  if (!newValue) {
+      // 清空弹幕
+      if (playerDmWrapRef.value.childElementCount > 0) {
+        // 循环删除所有子弹幕元素
+          while (playerDmWrapRef.value.firstChild) {
+              playerDmWrapRef.value.removeChild(playerDmWrapRef.value.firstChild);
+          }
+      }
+  } else {
+    // 初始化弹幕时间点索引
+    lastTimePoint = props.currentTime - 1;
+  }
+}); 
 // 初始化弹幕时间点索引
 const initDanMu = () => {
   lastTimePoint = -1;

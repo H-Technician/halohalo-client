@@ -42,7 +42,7 @@ function onShow() {
   showTimer.value = setTimeout(() => {
     visible.value = true
     emit('openChange', visible.value)
-  }, 500)
+  }, 200)
 }
 function onHide(): void {
   clearTimeout(showTimer.value)

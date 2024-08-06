@@ -11,14 +11,18 @@
         @mouseleave="hideControls"
         :style="isShowCursor ? '' : 'cursor: none;'">
           <!-- 视频 -->
-          <div class="player-video-perch" @mousemove="showControls('video')">
+          <div class="player-video-perch" 
+          @mousemove="showControls('video')"
+          @click="clickPlayPause"
+          @dblclick="dblclickFullscreen">
             <Teleport to="#player-mini-warp" :disabled="!isShowMinPlayer">
               <div class="player-video-wrap">
-                <video ref="videoPlayer" 
-                :src="videoUrl"
+                <video ref="videoPlayer"
                 @loadedmetadata="onLoadedMetadata"
                 @timeupdate="onTimeUpdate"
-                @ended="onVideoEnded">
+                @ended="onVideoEnded"
+                @waiting="onWaiting"
+                @playing="onPlaying">
                 </video>
               </div>
             </Teleport>
@@ -26,7 +30,9 @@
           <div class="player-video-poster"></div>
           <VideoplayerPlayerDmWrap 
           :currentTime="currentProgress"
-          :isplaying="isPlaying"/>
+          :isplaying="isPlaying"
+          :displayDanmu="displayDanmu"
+          :isLoading="isLoading"/>
           <VideoplayerPlayerCmdDmWrap 
           :isUpload="true"
           :currentTime="currentProgress"/>
@@ -37,6 +43,7 @@
             <div class="bpx-player-state-buff-icon" :style="isLoading ? '' : 'display: none;'"></div>
             <div class="bpx-player-state-buff-text" :style="isLoading ? '' : 'display: none;'">
               正在缓冲
+              {{ mbPerSec.toFixed(2) + 'Mb/s' }}
             </div>
           </div>
           <!-- 底部进度条 -->
@@ -56,6 +63,8 @@
           :inPictureInPicture="isInPictureInPicture"
           :buffer="buffer"
           :webFullScreen="isWebFullScreen"
+          :displayDanmu="displayDanmu"
+          @changDisplayDanmu="changDisplayDanmu"
           @toggleFullscreen="toggleFullscreen"
           @togglePlayPause="togglePlayPause"
           @changeCurrent="changeCurrent" 
@@ -92,10 +101,25 @@
               />
             </div>
           </div>
+          <!-- 全屏音量显示 -->
+          <div class="player-volume-hint" 
+          :style="volumeHint ? 
+          '' : 'display: none;'">
+            <span class="player-volume-hint-icon">
+              <IconsPlayVolume :style="volume === 0 ? 'display: none;' : ''"/>
+              <IconsPlayMute :style="volume !== 0 ? 'display: none;' : ''"/>
+            </span>
+            <span class="player-volume-hint-text">
+              {{ volume !== 0 ? (volume * 100).toFixed(0) + '%' : '静音' }}
+            </span>
+          </div>
         </div>
         <!-- 底部弹幕发送栏 -->
         <VideoplayerPlayerSendDmBar 
-        :fullscreen="isFullscreen"/>
+        :fullscreen="isFullscreen"
+        :displayDanmu="displayDanmu"
+        :isWebFullScreen="isWebFullScreen"
+        @changDisplayDanmu="changDisplayDanmu"/>
       </div>
     </div>
   </div>
@@ -106,7 +130,6 @@ const videoPlayerRef = ref<HTMLDivElement | null>(null); // 播放器容器
 const videoPlayer = ref<HTMLVideoElement | null>(null); // 视频
 const minPlayerRef = ref<HTMLDivElement | null>(null); // 小播放器容器
 const videoUrl = '' // 替换为你的视频URLhttps://static.v.hblog.top/test.video.mp4https://static.v.hblog.top/good.mp4
-const videoM3u8 = 'https://static.v.hblog.top/2024青岛大学毕业典礼《岁月神偷》/index.m3u8';
 const isFullscreen = ref(false); // 全屏状态
 const progressPercentage = ref(0); // 进度条百分比
 const videoDuration = ref<number>(0); // 视频时长
@@ -115,9 +138,11 @@ const isPlaying = ref(false); // 播放状态
 const controlsVisibility = ref(true); // 控制条是否显示
 const controlsShowVisibility = ref(false); // 控制条显示隐藏
 let inCtrlTimer: ReturnType<typeof setTimeout>; // 节流计时器
-let inCtrlShowTimer: ReturnType<typeof setTimeout>;
+let inCtrlShowTimer: ReturnType<typeof setTimeout>; // 控制条显示隐藏节流计时器
+let clickTimer: ReturnType<typeof setTimeout>; // 点击节流计时器
+let volumeHintTimer: ReturnType<typeof setTimeout>; // 音量提示节流计时器
 const isShowCursor = ref(true); // 鼠标是否显示
-const isLoading = ref(false); // 加载状态
+const isLoading = ref(true); // 加载状态
 const volume = ref(0.25); // 初始音量
 const isInPictureInPicture = ref(false); // 是否处于画中画模式
 const hls = ref<Hls | null>(null); // hls实例
@@ -126,21 +151,47 @@ const isShowMinPlayer = ref(false); // 是否显示小播放器
 const observer = ref<IntersectionObserver | null>(null); // 监听是否在视窗内
 const minPlayerRight = ref(100); // 小播放器距离右
 const minPlayerBottom = ref(100); // 小播放器距离下
-const isWebFullScreen = ref(false);
+const isWebFullScreen = ref(false); // 是否处于网页全屏
+const volumeHint = ref(false); // 音量提示
+const displayDanmu = ref(true); // 弹幕开关
+const originalVolume = ref(0); // 在静音模式下，记录当前音量
 const emit = defineEmits(['changWebFullScreen']);
 // props
 const props = defineProps({
+  // 视频地址
     videoUrl: {
         type: String,
         default: ''
-    }
+    },
+    // 是否启用HLS
+    useHls: {
+        type: Boolean,
+        default: false
+    },
 });
+// 点击视频播放器区域播放暂停事件
+const clickPlayPause = () => {
+  clearTimeout(clickTimer);
+  clickTimer = setTimeout(() => {
+    togglePlayPause();
+    // console.log('触发点击事件');
+  }, 400);
+};
+// 双击视频播放器区域全屏或退出全屏事件
+const dblclickFullscreen = () => {
+  clearTimeout(clickTimer);
+  toggleFullscreen();
+  // console.log('触发双击事件');
+};
 // 切换播放状态
 const togglePlayPause = () => {
     if (videoPlayer.value) {
         if (videoPlayer.value.paused) {
             videoPlayer.value.play();
             isPlaying.value = true;
+            if (isLoading.value) {
+              isLoading.value = false;
+            }
         } else {
             videoPlayer.value.pause();
             isPlaying.value = false;
@@ -171,11 +222,13 @@ const onVideoEnded = () => {
     videoPlayer.value.currentTime = 0;
 };
 // 静音/解除静音
-const toggleMute = (isMuted: boolean) => {
+const toggleMute = (isMuted: boolean, originalVolume: number) => {
     if (!videoPlayer.value) return;
     if (isMuted) {
+        volume.value = originalVolume;
         videoPlayer.value.muted = true;
     } else {
+        volume.value = originalVolume;
         videoPlayer.value.muted = false;
     }
 };
@@ -207,15 +260,20 @@ const changeCurrent = (currPer: number) => {
     videoPlayer.value.currentTime = currPer * videoDuration.value;
 };
 // 更新声音
-const updateVolume = (volume: number) => {
+const updateVolume = (updateVolume: number) => {
     if (!videoPlayer.value) return;
-    videoPlayer.value.volume = volume;
+    // 限制音量范围0-1
+    updateVolume = Math.max(0, updateVolume);
+    updateVolume = Math.min(1, updateVolume);
+    volume.value = updateVolume;
+    videoPlayer.value.volume = updateVolume;
 };
 // 切换播放速度
 const changeBackrate = (backrate: number) => {
     if (!videoPlayer.value) return;
     videoPlayer.value.playbackRate = backrate;
 };
+// 进入/退出网页样式全屏
 const toggleWebFullscreen = () => {
     if (!isWebFullScreen.value) {
         isWebFullScreen.value = true;
@@ -258,8 +316,20 @@ const hideControls = () =>{
         isShowCursor.value = true;
     }, 150);
 };
-  //  拖拽小播放器窗口
- //  鼠标按下时
+// 视频播放等待
+const onWaiting = () => {
+    if (buffer.value <= currentProgress.value) {
+      isLoading.value = true;
+    }
+};
+// 视频播放开始
+const onPlaying = () => {
+  if (isLoading.value) {
+    isLoading.value = false;
+  }
+};
+//  拖拽小播放器窗口
+//  鼠标按下时
 const fnDown = (e: MouseEvent) => {
   if (!minPlayerRef.value) return;
   const disX = e.clientX
@@ -282,15 +352,20 @@ const fnDown = (e: MouseEvent) => {
   }
   
 };
+// 打开/关闭弹幕
+const changDisplayDanmu = (showDanmu: boolean) => {
+    displayDanmu.value = showDanmu;
+    // console.log(showDanmu);
+};
 // 退出全屏
 const exitFullscreen = () => {
     if (document.exitFullscreen) {
         document.exitFullscreen();
-    } else if ((document as any).mozCancelFullScreen) { /* Firefox */
+    } else if ((document as any).mozCancelFullScreen) { // 兼容Firefox浏览器
         (document as any).mozCancelFullScreen();
-    } else if ((document as any).webkitExitFullscreen) { /* Chrome, Safari and Opera */
+    } else if ((document as any).webkitExitFullscreen) { // 兼容Chrome, Safari 和 Opera 浏览器
         (document as any).webkitExitFullscreen();
-    } else if ((document as any).msExitFullscreen) { /* IE/Edge */
+    } else if ((document as any).msExitFullscreen) { // 兼容IE/Edge 浏览器
         (document as any).msExitFullscreen();
     }
     isFullscreen.value = false;
@@ -299,11 +374,11 @@ const exitFullscreen = () => {
 const enterFullscreen = (element: HTMLDivElement) => {
     if (element.requestFullscreen) {
         element.requestFullscreen();
-    } else if ((element as any).mozRequestFullScreen) { /* Firefox */
+    } else if ((element as any).mozRequestFullScreen) { // 兼容Firefox浏览器
         (element as any).mozRequestFullScreen();
-    } else if ((element as any).webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+    } else if ((element as any).webkitRequestFullscreen) { // 兼容Chrome, Safari 和 Opera 浏览器
         (element as any).webkitRequestFullscreen();
-    } else if ((element as any).msRequestFullscreen) { /* IE/Edge */
+    } else if ((element as any).msRequestFullscreen) { // 兼容IE/Edge 浏览器
         (element as any).msRequestFullscreen();
     }
     isFullscreen.value = true;
@@ -322,49 +397,177 @@ const handleFullscreenChange = () => {
 const handlePiPChange = () => {
   isInPictureInPicture.value = document.pictureInPictureElement !== null;
 };
+// 监听键盘事件
+const handleKeyboard = (event: KeyboardEvent) => {
+  // 检查当前焦点元素
+  const activeElement = document.activeElement as HTMLElement;
+  const isInputField = ['INPUT', 'TEXTAREA'].includes(activeElement.tagName);
+
+  if (isInputField) return;
+
+  switch (event.key) {
+    case ' ': // 空格键 播放
+      event.preventDefault();
+      togglePlayPause();
+      break;
+    case 'f': // F键 全屏
+      toggleFullscreen();
+      break;
+    case 'd': // D键 弹幕
+      displayDanmu.value = !displayDanmu.value;
+      break;
+    case 'm': // M键 静音
+      if (volume.value !== 0){
+        originalVolume.value = volume.value;
+        toggleMute(true, 0);
+      } else {
+        toggleMute(false, originalVolume.value);
+      }
+      break;
+    case 'ArrowRight': // →键 快进5秒
+      event.preventDefault();
+      videoPlayer.value!.currentTime += 5;
+      break;
+    case 'ArrowLeft': // ←键 回退5秒
+      event.preventDefault();
+      videoPlayer.value!.currentTime -= 5;
+      break;
+    case 'ArrowUp': // ↑键 音量+10
+      event.preventDefault();
+      updateVolume(volume.value + 0.1);
+      break;
+    case 'ArrowDown': // ↓键 音量-10
+      event.preventDefault();
+      updateVolume(volume.value - 0.1);
+      break;
+    default:
+      break;
+  }
+};
+const handleVolumeChangeWithWheel = (event: WheelEvent) => {
+  if (isFullscreen.value || isWebFullScreen.value) {
+    clearTimeout(volumeHintTimer);
+    volumeHint.value = true;
+    volumeHintTimer = setTimeout(() => {
+      volumeHint.value = false;
+    }, 3000);
+  }
+  // 滚轮事件处理
+  if (event.deltaY < 0) {
+    // 向上滚动，增加音量
+    updateVolume(volume.value + 0.05);
+  } else if (event.deltaY > 0) {
+    // 向下滚动，减少音量
+    updateVolume(volume.value - 0.05);
+  }
+};
 // 监听视频缓url地址
 watch(() => props.videoUrl, (newValue) => {
+  if (props.useHls) {
     // 清理hls实例
     if (hls.value) {
-      hls.value.off(Hls.Events.BUFFER_APPENDED, onBufferAppended);
+      hls.value.off(Hls.Events.BUFFER_APPENDED, function () {});
       hls.value.destroy();
     }
     initHls(newValue);
-})
+  } else {
+    videoPlayer.value!.src = newValue;
+  }
+});
+// 监听全屏状态变化 监听滚轮从而音量
+watch(() => isWebFullScreen.value || isFullscreen.value, (newValue) => {
+  if (newValue) { 
+    // 开始监听整个页面的滚轮事件
+    document.addEventListener('wheel', handleVolumeChangeWithWheel, { passive: false });
+  } else {
+    // 停止监听整个页面的滚轮事件
+    document.removeEventListener('wheel', handleVolumeChangeWithWheel);
+  }
+});
+// HLS.js 配置
+const hlsConfig = {
+  maxBufferLength: 20,
+  backBufferLength: 5,
+  liveSyncDurationCount: 1,
+  liveMaxLatencyDurationCount: 2,
+  maxBufferSize: 20000000,
+};
+// 初始化HLS实例
 const initHls = (m3u8Url: string) => {
   if (Hls.isSupported()) {
     if (videoPlayer.value) {
-      hls.value = new Hls()
-      hls.value.loadSource(m3u8Url)
-      hls.value.attachMedia(videoPlayer.value)
+      hls.value = new Hls(hlsConfig);
+      hls.value.loadSource(m3u8Url);
+      hls.value.attachMedia(videoPlayer.value);
       hls.value.on(Hls.Events.MANIFEST_PARSED, function () {
         if (!videoPlayer.value) return;
         videoPlayer.value.muted = true;
-        videoPlayer.value.play();
-        videoPlayer.value.muted = false;
-        isPlaying.value = true;
+        videoPlayer.value.play()
+          .then(() => {
+            // 成功播放后取消静音
+            if (!videoPlayer.value) return;
+            videoPlayer.value.muted = false;
+            isPlaying.value = true;
+            showControls('video');
+          })
+          .catch((error) => {
+            // 捕获错误并处理
+            console.error('Error starting playback:', error);
+            if (error.name === 'NotAllowedError' || error.name === 'DOMException') {
+              console.error('Playback was interrupted. Please try again after user interaction.');
+            }
+          });
+        //videoPlayer.value.muted = false;
+        // isPlaying.value = true;
         showControls('video');
         if (!hls.value) return;
+        // 监听错误事件
+        hls.value.on(Hls.Events.ERROR, function (event, data) {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.log('fatal media error encountered, try to recover');
+                if (!hls.value) return;
+                hls.value.recoverMediaError();
+                break;
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                console.error('fatal network error encountered', data);
+                break;
+              default:
+                // cannot recover
+                if (!hls.value) return;
+                hls.value.destroy();
+                break;
+            }
+          }
+        });
         // 监听缓冲区更新事件
-        hls.value.on(Hls.Events.BUFFER_APPENDED, onBufferAppended);
+        hls.value.on(Hls.Events.BUFFER_APPENDED, function () {
+          if (!videoPlayer.value) return;
+          const buffered = videoPlayer.value.buffered;
+          // console.log(buffered.end(0));
+          buffer.value = buffered.end(0);
+        });
+        // 监听视频播放时卡顿缓冲事件
+        hls.value.on(Hls.Events.FRAG_LOADED, function (event, data) {
+          // console.log(data);
+          const totalBytes = data.frag.stats.loaded;
+          const loadingDuration = data.frag.stats.loading.end - data.frag.stats.loading.start;
+          //const mbps = calculateMbps(totalBytes, loadingDuration);
+          mbPerSec.value = calculateMBps(totalBytes, loadingDuration);
+          // //console.log(`Buffer speed: ${mbps.toFixed(2)} Mbps or ${mbPerSec.toFixed(2)} MB/s`);
+        });
       })
     }
   }
 };
-// 缓冲区更新的回调函数
-const onBufferAppended = () => {
-  if (!videoPlayer.value) return;
-  const buffered = videoPlayer.value.buffered;
-  if (buffered.length > 0) {  
-    let totalBuffered = 0;
-    // buffered 是一个 TimeRanges 对象，你可以遍历它来获取缓冲的时间范围  
-    for (let i = 0; i < buffered.length; i++) {
-      //buffer.value = buffered.end(i);  
-      totalBuffered += buffered.end(i) - buffered.start(i);
-      buffer.value = totalBuffered;
-      //console.log(`Buffered from ${buffered.start(i)} to ${buffered.end(i)}`);  
-    }  
-  } 
+const mbPerSec = ref(0);
+const calculateMbps = (bytes: number, time: number): number => {
+  return (bytes * 8) / time / 1000 / 1000;
+};
+
+const calculateMBps = (bytes: number, time: number): number => {
+  return bytes / time / 1024 / 1024;
 };
 // 监听元素是否进入可视区域
 if (process.client) {
@@ -387,11 +590,16 @@ if (process.client) {
 onMounted(() => {
     if (!videoPlayer.value) return;
     videoPlayer.value.volume = volume.value;
-    initHls(videoM3u8);
+    if (props.useHls) {
+      initHls(props.videoUrl);
+    } else {
+      videoPlayer.value.src = props.videoUrl;
+    }
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
     document.addEventListener('enterpictureinpicture', handlePiPChange);
     document.addEventListener('leavepictureinpicture', handlePiPChange);
+    document.addEventListener('keydown', handleKeyboard);
     // 监听播放事件
     videoPlayer.value.addEventListener('play', () => {
       isPlaying.value = true;
@@ -411,11 +619,13 @@ onUnmounted(() => {
     document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
     document.removeEventListener('enterpictureinpicture', handlePiPChange);
     document.removeEventListener('leavepictureinpicture', handlePiPChange);
+    document.removeEventListener('keydown', handleKeyboard);
+    document.removeEventListener('wheel', handleVolumeChangeWithWheel);
     videoPlayer.value?.removeEventListener('play', () => {});
     videoPlayer.value?.removeEventListener('pause', () => {});
 
     if (hls.value) {
-      hls.value.off(Hls.Events.BUFFER_APPENDED, onBufferAppended);
+      hls.value.off(Hls.Events.BUFFER_APPENDED, function () {});
       hls.value.destroy();
     }
 });
@@ -642,6 +852,45 @@ onUnmounted(() => {
         .show-min-player {
           display: block;
         }
+        .player-volume-hint {
+          -webkit-box-align: center;
+          -ms-flex-align: center;
+          align-items: center;
+          background: hsla(0, 0%, 100%, .8);
+          border-radius: 4px;
+          color: #000;
+          display: -webkit-box;
+          display: -ms-flexbox;
+          display: flex;
+          font-size: 20px;
+          height: 32px;
+          left: 50%;
+          min-width: 84px;
+          padding: 8px;
+          position: absolute;
+          top: 50%;
+          -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+          z-index: 77;
+          pointer-events: none;
+          //opacity: 0;
+          .player-volume-hint-icon {
+            -webkit-box-flex: 0;
+            -ms-flex: none;
+            flex: none;
+            height: 34px;
+            width: 34px;
+
+          }
+          .player-volume-hint-text {
+            -webkit-box-flex: 1;
+            -ms-flex: 1;
+            flex: 1;
+            line-height: 34px;
+            padding: 0 2px;
+            text-align: center;
+          }
+        }
 
       }
 
@@ -817,6 +1066,9 @@ onUnmounted(() => {
           }
         }
       }
+    }
+    .player-volume-hint-show {
+      opacity: 1;
     }
 }
 

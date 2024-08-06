@@ -7,6 +7,8 @@
 </template>
 <style lang="scss" scoped>
 svg {
+    box-sizing: border-box;
+    padding: 1px;
     &:hover {
         transform: rotate(180deg);
         transition: all 0.5s;

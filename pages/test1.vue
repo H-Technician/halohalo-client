@@ -62,14 +62,18 @@
             <CropperPicture :videoFile="url"></CropperPicture>
         </ClientOnly> -->
         <div style="height: 458px; width: 732px; margin: 0 auto; margin-bottom: 40px; z-index: 1; position: relative;">
-            <VideoplayerPlayer :videoUrl="m3u8Url" @changWebFullScreen="changWebFullScreen"/>
+            <VideoplayerPlayer 
+            :videoUrl="m3u8Url" 
+            :useHls="true"
+            @changWebFullScreen="changWebFullScreen"/>
         </div>
         <div style="width: 100%; display: flex; justify-content: center;">
-            <el-button type="primary" @click="govideo(0)">NeverGonna Give You Up</el-button>
-            <el-button type="primary" @click="govideo(1)">青岛大学-满天星辰不及你</el-button>
-            <el-button type="primary" @click="govideo(2)">青岛大学-岁月神偷</el-button>
-            <el-button type="primary" @click="govideo(3)">青岛大学-青花瓷</el-button>
-            <el-button type="primary" @click="govideo(4)">气象站台</el-button>
+            <el-button type="primary" @click="govideo(0)">一直很安静</el-button>
+            <el-button type="primary" @click="govideo(1)">NeverGonna Give You Up</el-button>
+            <el-button type="primary" @click="govideo(2)">青岛大学-满天星辰不及你</el-button>
+            <el-button type="primary" @click="govideo(3)">青岛大学-岁月神偷</el-button>
+            <el-button type="primary" @click="govideo(4)">青岛大学-青花瓷</el-button>
+            <el-button type="primary" @click="govideo(5)">气象站台</el-button>
         </div>
         <!-- <Tooltip :overlayStyle="{height: '10px', width: 'auto'}" :tooltip="'Tooltip测试'">
             <button style="margin: 0 auto; height: 60px; width: 100px;">Tooltip测试</button>
@@ -93,6 +97,7 @@ const url = ref();
 const file1 = ref();
 const isDisplayHeader = ref(true);
 const videoUrls = [
+    'https://static.v.hblog.top/【怀旧经典】阿桑《一直很安静》经典神曲！《仙剑奇侠传》插曲/index.m3u8',
     'https://static.v.hblog.top/uploads_2022_09_24_ge4ZfU9g_137649199_u2-1-208/index.m3u8',
     'https://static.v.hblog.top/《满天星辰不及你》范静如胡轶涵：青岛大学2022年6月18日毕业典礼快闪（官方超清字幕版）/index.m3u8',
     'https://static.v.hblog.top/2024青岛大学毕业典礼《岁月神偷》/index.m3u8',
@@ -104,7 +109,6 @@ const govideo = (video: number) => {
     switch (video) {
         case 0:
             m3u8Url.value = videoUrls[0];
-            break;
         case 1:
             m3u8Url.value = videoUrls[1];
             break;
@@ -116,6 +120,9 @@ const govideo = (video: number) => {
             break;
         case 4:
             m3u8Url.value = videoUrls[4];
+            break;
+        case 5:
+            m3u8Url.value = videoUrls[5];
             break;
     
     }

@@ -8,7 +8,8 @@ body, html {
 }
 /* 按钮字体样式  */
 button {
-    font-family: "HarmonyOS_Sans_SC_Medium";
+    /* font-family: "HarmonyOS_Sans_SC_Medium"; */
+    font-family: inherit;
 }
 /* a 样式 */
 a:link,

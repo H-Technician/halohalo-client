@@ -39,7 +39,7 @@
                             </div>  
                         </div>
                         <div class="video-duration_warp">
-                            <span>4:12</span>
+                            <span>04:12</span>
                         </div>
                     </div>
                     <div class="video-card_progress" :style="isPlayer ? '' : 'display: none;'">
@@ -403,11 +403,12 @@ onUnmounted(() => {
                 }
                 span {
                     display: inline-block; /* 修改为inline-block以便于定位 */
-                    margin-left: 2px;
+                    margin-left: 8px;
                     margin-right: 2px;
                     white-space: nowrap; /* 防止文字换行 */
                     transition: transform 1s ease; /* 添加文字位置过渡效果 */
                     transform: translateX(100%); /* 初始时文字位于容器之外 */
+                    font-size: 13px;
                 }
 
                 &:hover {

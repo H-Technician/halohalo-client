@@ -11,19 +11,38 @@
             </div>
             <div class="player-dm-send-root">
                 <VideoplayerPlayerSendDmInput 
-                :isFullscreen="props.fullscreen"/>
+                :isFullscreen="props.fullscreen"
+                :displayDanmu="props.displayDanmu"
+                @changDisplayDanmu="changDisplayDanmu"/>
             </div>
         </div>
     </div>
 </template>
 <script setup lang="ts">
 const props = defineProps({
+    // 是否全屏
     fullscreen: {
         type: Boolean,
         default: false
-    }
+    },
+    // 弹幕开关
+    displayDanmu: {
+        type: Boolean,
+        default: true
+    },
+    // 是否网页全屏
+    isWebFullScreen: {
+        type: Boolean,
+        default: false
+    },
 });
-
+const emit = defineEmits(['changDisplayDanmu']);
+// 弹幕发送框传过来的弹幕显示回调事件
+const changDisplayDanmu = (val: boolean) => {
+    if (!props.fullscreen && !props.isWebFullScreen) {
+        emit('changDisplayDanmu', val);
+    }
+}
 </script>
 <style lang="scss" scoped>
 .player-sending-area {

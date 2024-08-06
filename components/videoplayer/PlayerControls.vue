@@ -36,7 +36,12 @@
                 </div>
                 <div class="player-controls-center">
                     <!-- 发送弹幕输入框 -->
-                    <VideoplayerPlayerSendDmInput position="controls" :isFullscreen="isFullscreen"/>
+                    <VideoplayerPlayerSendDmInput 
+                    position="controls" 
+                    :isFullscreen="isFullscreen" 
+                    :isWebFullScreen="props.webFullScreen"
+                    :displayDanmu="props.displayDanmu"
+                    @changDisplayDanmu="changDisplayDanmu" />
                 </div>
                 <div class="player-controls-right">
                     <!-- 清晰度切换 -->
@@ -51,7 +56,7 @@
                         </template>
                      </VideoplayerPanel>
                     <!-- 选集 -->
-                    <div class="player-controls-item controls-text" v-if="isFullscreen">
+                    <div class="player-controls-item controls-text" :style="isFullscreen ? '' : 'display: none;'">
                         <span>选集</span>
                     </div>
                     <!-- 倍速 -->
@@ -69,12 +74,12 @@
                     <VideoplayerPanel :panelStyle="isFullscreen ? 'padding-bottom: 40px;' : 'padding-bottom: 30px;'">
                         <template #reference>
                             <div class="player-controls-item controls-icon" @click="toggleMute">
-                                <IconsPlayVolume class="icon" v-if="!isMuted"/>
-                                <IconsPlayMute class="icon" v-else/>
+                                <IconsPlayVolume class="icon" :style="props.volume === 0 ? 'display: none;' : ''"/>
+                                <IconsPlayMute class="icon" :style="props.volume === 0 ? '' : 'display: none;'"/>
                             </div>
                         </template>
                         <template #content>
-                            <VideoplayerCtrlmenuVolume :volume="volume" @updateVolume="updateVolume"/>
+                            <VideoplayerCtrlmenuVolume :volume="props.volume" @updateVolume="updateVolume"/>
                         </template>
                     </VideoplayerPanel>
                     <!-- 设置 -->
@@ -91,21 +96,21 @@
                         </template>
                     </VideoplayerPanel>
                     <!-- 画中画 -->
-                    <Tooltip :overlayStyle="{ marginBottom: isFullscreen ? 36 + 'px' : 22 + 'px' }">
+                    <Tooltip :overlayStyle="{ marginBottom: isFullscreen || props.webFullScreen ? 36 + 'px' : 22 + 'px' }">
                         <template #tooltip>{{ isPip ? '退出画中画' : '开启画中画'}}</template>
                         <div class="player-controls-item controls-icon" @click="togglePiP">
                             <IconsPlayCommon class="icon"/>
                         </div>
                     </Tooltip>
                     <!-- 网页全屏 -->
-                    <Tooltip :overlayStyle="{ marginBottom: props.webFullScreen ? 36 + 'px' : 22 + 'px' }" v-if="!isFullscreen">
+                    <Tooltip :overlayStyle="{ marginBottom: props.webFullScreen ? 36 + 'px' : 22 + 'px' }" :style="isFullscreen ? 'display: none;' : ''">
                         <template #tooltip>{{ props.webFullScreen ? '退出网页全屏' : '网页全屏'}}</template>
                         <div class="player-controls-item controls-icon" @click="toggleWebFullscreen">
                             <IconsPlayWebScreen class="icon"/>
                         </div>
                     </Tooltip>
                     <!-- 全屏 -->
-                    <Tooltip :overlayStyle="{ marginBottom: isFullscreen ? 36 + 'px' : 22 + 'px' }">
+                    <Tooltip :overlayStyle="{ marginBottom: isFullscreen || props.webFullScreen ? 36 + 'px' : 22 + 'px' }">
                         <template #tooltip>{{ isFullscreen ? '退出全屏(f)' : '进入全屏(f)'}}</template>
                         <div class="player-controls-item controls-icon" @click="toggleFullscreen">
                             <IconsPlayFullScreen class="icon"/>
@@ -118,19 +123,16 @@
 </template>
 <script lang="ts" setup>
 import { formatTime } from '@/utils/formatTime';
-const formattedCurrentTime = ref('00:00');
-const formattedTotalTime = ref('00:00');
-const currentProgress = ref<number>(0);
-const progressPercentage = ref<number>(0);
-const videoDuration = ref<number>(0);
-const isFullscreen = ref(false);
-const isPlaying = ref(false);
-const isMuted = ref(false);
-const volume = ref(0.25);
-const originalVolume = ref(0.25);
-const isPip = ref(false);
-const progressBufferPer = ref(0.00001);
-const hideSettingMorePanel = ref(false);
+const formattedCurrentTime = ref('00:00'); // 当前播放时间
+const formattedTotalTime = ref('00:00'); // 总时长
+const currentProgress = ref<number>(0); // 当前播放进度
+const progressPercentage = ref<number>(0); // 进度条百分比
+const isFullscreen = ref(false); // 是否全屏
+const isPlaying = ref(false); // 播放状态
+const originalVolume = ref(0); // 在静音模式下，记录当前音量
+const isPip = ref(false); // 是否处于画中画模式
+const progressBufferPer = ref(0.00001); // 缓冲进度
+const hideSettingMorePanel = ref(false); // 关闭示弹幕设置面板
 const emit = defineEmits([
     'toggleFullscreen', 
     'togglePlayPause', 
@@ -139,7 +141,8 @@ const emit = defineEmits([
     'toggleMute', 
     'togglePiP',
     'changeBackrate',
-    'toggleWebFullscreen'
+    'toggleWebFullscreen',
+    'changDisplayDanmu'
 ]);
 const props = defineProps({
     // 是否全屏
@@ -180,6 +183,11 @@ const props = defineProps({
     buffer: {
         type: Number,
         default: 0.00001
+    },
+    // 弹幕开启和关闭
+    displayDanmu: {
+        type: Boolean,
+        default: true
     }
 
 });
@@ -189,15 +197,12 @@ const togglePlayPause = () => {
 };
 // 静音/恢复
 const toggleMute = () => {
-    if (!isMuted.value) {
-        originalVolume.value = volume.value;
-        volume.value = 0;
-        isMuted.value = true;
+    if (props.volume !== 0) {
+        originalVolume.value = props.volume;
+        emit('toggleMute', true, 0);
     } else {
-        volume.value = originalVolume.value;
-        isMuted.value = false;
+        emit('toggleMute', false, originalVolume.value);
     }
-    emit('toggleMute', isMuted.value);
 };
 // 切换全屏状态
 const toggleFullscreen = () => {
@@ -216,7 +221,6 @@ const handleChangeCurrent = (currPer: Number) => {
     emit('changeCurrent', currPer);
 };
 const updateVolume = (volume: number) => {
-    // console.log(volume);
     emit('updateVolume', volume);
 };
 // 改变播放速度 
@@ -227,6 +231,12 @@ const handleSelectedBackrate = (backrate: number) => {
 const handleIsShowSettingMorePanel = (isShow: boolean) => {
         hideSettingMorePanel.value = isShow;
 };
+// 打开关闭弹幕
+const changDisplayDanmu = (val: boolean) => {
+    if (props.fullscreen || props.webFullScreen) {
+        emit('changDisplayDanmu', val);
+    }
+};
 // 监听全屏状态
 watch(() => props.fullscreen, (newValue) => {
     isFullscreen.value = newValue;
@@ -235,14 +245,11 @@ watch(() => props.fullscreen, (newValue) => {
 watch(() => props.currentTime, (newValue) => {
     formattedCurrentTime.value = formatTime(newValue);
     currentProgress.value = newValue;
-    progressPercentage.value = newValue / videoDuration.value;
-    //console.log(newValue);
-    //console.log(progressPercentage.value);
+    progressPercentage.value = newValue / props.duration;
 });
 // 监听视频时长
 watch(() => props.duration, (newValue) => {
     if (newValue) {
-        videoDuration.value = newValue;
         formattedTotalTime.value = formatTime(newValue);
     }
 });
@@ -254,24 +261,17 @@ watch(() => props.playing, (newValue) => {
         isPlaying.value = false;
     }
 });
-// 监听音量状态
-watch(() => props.volume, (newValue) => {
-    volume.value = newValue;
-});
 // 监听画中画状态
 watch(() => props.inPictureInPicture, (newValue) => {
     isPip.value = newValue;
 });
 // 监听视频缓冲
 watch(() => props.buffer, (newValue) => {
-    progressBufferPer.value = newValue / videoDuration.value;
-})
+    progressBufferPer.value = newValue / props.duration;
+});
 onMounted(() => {
-    // 初始化音量状态
-    volume.value = props.volume;
     // 初始化时间
     if (props.duration) {
-        videoDuration.value = props.duration;
         formattedTotalTime.value = formatTime(props.duration);
     }
     formattedCurrentTime.value = formatTime(props.currentTime);
@@ -283,7 +283,7 @@ onMounted(() => {
 .player-controls {
     display: block;
     position: absolute;
-    height: 65px;
+    height: 70px;
     width: 100%;
     bottom: 0;
     left: 0;
@@ -305,7 +305,7 @@ onMounted(() => {
         }
         .player-controls-bottom {
             width: 100%;
-            height: 45px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: space-between;

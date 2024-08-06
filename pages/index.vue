@@ -88,7 +88,7 @@ watch(() => scrollTop.value,
   max-width: 2560px;
   background-color: #ffffff;
   overflow: hidden;
-  min-width: 1236px;
+  min-width: 1186px;
   scroll-behavior: smooth; 
 }
 .large-layout {
@@ -98,7 +98,7 @@ watch(() => scrollTop.value,
   max-width: 2200px;
   width: 100%;
   color: #000;
-  min-width: 1236px;
+  min-width: 1186px;
 }
 .layout-container {
   display: grid;
